@@ -29,9 +29,19 @@ public class MegamanController : MonoBehaviour
     [SerializeField] private LayerMask ground;
     [SerializeField] private bool DebugGroundCheck;
 
+    [Header("Shoot")]
+    [SerializeField] private Bullet bullet;
+    [SerializeField] private Transform shootPoint;
+    [SerializeField] private Transform jumpingShootPoint;
+
+    [SerializeField] private float shootAnimDuration;
+    private float currentShootAnimDuration;
+
 
     [Header("Animation")]
     private bool isRunningAnim;
+    private bool isShootingAnim;
+    private bool lastShootingAnim;
 
     void Awake()
     {
@@ -74,6 +84,38 @@ public class MegamanController : MonoBehaviour
         else rb.gravityScale = gravityFall;
     }
 
+    private void Shoot()
+    {
+        var bulletSpawnPoint = transform.position;
+        var bulletDirection = Vector2.left;
+        var currentShootPoint = Vector3.zero;
+
+        if (IsGrounded())
+        {
+            bulletSpawnPoint += shootPoint.localPosition;
+            currentShootPoint = shootPoint.localPosition;
+
+        }
+        else
+        {
+            bulletSpawnPoint += jumpingShootPoint.localPosition;
+            currentShootPoint = jumpingShootPoint.localPosition;
+        }
+
+        
+
+        if (sr.flipX)
+        {
+            bulletDirection = Vector2.right;
+            bulletSpawnPoint = new Vector3(bulletSpawnPoint.x + Mathf.Abs(currentShootPoint.x * 2), bulletSpawnPoint.y);
+        }
+
+        var newBullet = Instantiate(bullet, bulletSpawnPoint, shootPoint.rotation);
+        newBullet.Init(bulletDirection);
+
+        currentShootAnimDuration = shootAnimDuration;
+    }
+
     public bool IsGrounded()
     {
         RaycastHit2D raycastHit = Physics2D.BoxCast(bc.bounds.center, bc.bounds.size, 0f, Vector2.down, extraHeightBelow, ground);
@@ -109,6 +151,8 @@ public class MegamanController : MonoBehaviour
         if (currentJoystickPosition.x < 0f) sr.flipX = false;
         else if (currentJoystickPosition.x > 0f) sr.flipX = true;
 
+        string animName = "";
+
         if (IsGrounded())
         {
             if (Mathf.Abs(rb.velocity.x) > 0f)
@@ -116,21 +160,41 @@ public class MegamanController : MonoBehaviour
                 if (!isRunningAnim)
                 {
                     isRunningAnim = true;
-                    animator.Play("Megaman_PreRun");
-                }
+                    animName = "Megaman_PreRun";
+                }else animName = "Megaman_Run";
             }
             else
             {
-                animator.Play("Megaman_Idle");
+                animName = "Megaman_Idle";
                 isRunningAnim = false;
             }
         }
         else
         {
             isRunningAnim = false;
-            animator.Play("Megaman_Jump");
+            animName = "Megaman_Jump";
         }
-        
+
+        if (currentShootAnimDuration > 0f)
+        {
+            animName += "_Shoot";
+            currentShootAnimDuration -= Time.deltaTime;
+            isShootingAnim = true;
+        }
+        else isShootingAnim = false;
+
+        if (animName != "")
+        {
+            if (lastShootingAnim != isShootingAnim)
+            {
+                lastShootingAnim = isShootingAnim;
+                animator.Play(animName, 0, animator.GetCurrentAnimatorStateInfo(0).normalizedTime % 1);
+            }
+            else
+            {
+                animator.Play(animName);
+            }
+        }
     }
 
     #endregion
@@ -153,6 +217,14 @@ public class MegamanController : MonoBehaviour
             currentJumpTime = jumpTime;
         }
         else if (context.canceled) isJumping = false;
+    }
+
+    public void ShootInput(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            Shoot();
+        }
     }
 
     #endregion

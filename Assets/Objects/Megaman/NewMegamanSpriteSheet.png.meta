@@ -114,8 +114,8 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 68
-        width: 32
+        y: 160
+        width: 48
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -134,9 +134,9 @@ TextureImporter:
       name: NewMegamanSpriteSheet_1
       rect:
         serializedVersion: 2
-        x: 32
-        y: 68
-        width: 32
+        x: 48
+        y: 160
+        width: 48
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -155,9 +155,9 @@ TextureImporter:
       name: NewMegamanSpriteSheet_2
       rect:
         serializedVersion: 2
-        x: 64
-        y: 68
-        width: 32
+        x: 96
+        y: 160
+        width: 48
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -177,8 +177,8 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 36
-        width: 32
+        y: 128
+        width: 48
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -197,9 +197,9 @@ TextureImporter:
       name: NewMegamanSpriteSheet_4
       rect:
         serializedVersion: 2
-        x: 32
-        y: 36
-        width: 32
+        x: 48
+        y: 128
+        width: 48
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -218,9 +218,9 @@ TextureImporter:
       name: NewMegamanSpriteSheet_5
       rect:
         serializedVersion: 2
-        x: 64
-        y: 36
-        width: 32
+        x: 96
+        y: 128
+        width: 48
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -229,7 +229,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0fcf72ffdef3bea49a58c247075c42e4
+      spriteID: 712f62617dec3f04f8098afe5c1166d9
       internalID: 2102571424
       vertices: []
       indices: 
@@ -240,8 +240,8 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 4
-        width: 32
+        y: 96
+        width: 48
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -250,8 +250,113 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b5d9ad22e800afa43b9ff1aa7a43b16e
+      spriteID: c81eccea06c33ec45b5b89773fcefb96
       internalID: -1374150351
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewMegamanSpriteSheet_7
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 64
+        width: 48
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f1b8d395b7633a54e8d15b298fc9a831
+      internalID: -759863913
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewMegamanSpriteSheet_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 32
+        width: 48
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 85e18cec51e9ea7478449195c58f1b98
+      internalID: 1642681655
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewMegamanSpriteSheet_9
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 32
+        width: 48
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f717e9581363bda45b2d4281633f3fc8
+      internalID: 193350827
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewMegamanSpriteSheet_10
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 32
+        width: 48
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a75fcaacefabc6c449d8b798677ab213
+      internalID: 1677533788
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewMegamanSpriteSheet_11
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 48
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f2eb9fc771190ce4ca886dae76609a66
+      internalID: 1763856719
       vertices: []
       indices: 
       edges: []
@@ -269,11 +374,16 @@ TextureImporter:
     nameFileIdTable:
       NewMegamanSpriteSheet_0: -156112790
       NewMegamanSpriteSheet_1: -1160140379
+      NewMegamanSpriteSheet_10: 1677533788
+      NewMegamanSpriteSheet_11: 1763856719
       NewMegamanSpriteSheet_2: 80827915
       NewMegamanSpriteSheet_3: -1629819543
       NewMegamanSpriteSheet_4: 1652411225
       NewMegamanSpriteSheet_5: 2102571424
       NewMegamanSpriteSheet_6: -1374150351
+      NewMegamanSpriteSheet_7: -759863913
+      NewMegamanSpriteSheet_8: 1642681655
+      NewMegamanSpriteSheet_9: 193350827
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
