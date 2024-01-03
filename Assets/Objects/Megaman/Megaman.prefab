@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7328245005353537571}
   - component: {fileID: 1747173923856472549}
   - component: {fileID: 2425367405057728953}
+  - component: {fileID: 1881259996845250026}
   m_Layer: 0
   m_Name: Megaman
   m_TagString: Untagged
@@ -98,10 +99,10 @@ BoxCollider2D:
   m_Offset: {x: 0, y: -0.22757494}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.32, y: 0.32}
+    newSize: {x: 0.32, y: 0.32}
+    adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
@@ -182,11 +183,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76ebd6668e1943a47b0a261448b61cdb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
-  jumpForce: 5
+  sr: {fileID: 8066897895788514397}
+  bc: {fileID: 7328245005353537571}
+  speed: 4
+  jumpForce: 6
   jumpTime: 0.25
   gravityJump: 1
-  gravityFall: 3
+  gravityFall: 4
+  extraHeightBelow: 0.1
+  ground:
+    serializedVersion: 2
+    m_Bits: 64
+  DebugGroundCheck: 1
+--- !u!95 &1881259996845250026
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1670579599553738996}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 1c04b4db393c37445b7729541bf14dc9, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1727889511574327860
 GameObject:
   m_ObjectHideFlags: 0
