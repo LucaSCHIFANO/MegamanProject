@@ -37,6 +37,8 @@ public class MegamanController : MonoBehaviour
     [SerializeField] private float shootAnimDuration;
     private float currentShootAnimDuration;
 
+    private PoolBulletManager poolBulletManager;
+
 
     [Header("Animation")]
     private bool isRunningAnim;
@@ -47,6 +49,7 @@ public class MegamanController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        poolBulletManager = PoolBulletManager.Instance;
     }
 
     private void FixedUpdate()
@@ -63,7 +66,10 @@ public class MegamanController : MonoBehaviour
 
     private void Movement()
     {
-        float horizontalMovement = currentJoystickPosition.normalized.x * speed;
+        float joystickX = currentJoystickPosition.x;
+        if (joystickX != 0) joystickX = Mathf.Sign(joystickX);
+
+        float horizontalMovement = joystickX * speed;
         float verticalMovement = rb.velocity.y;
 
         rb.velocity = new Vector2(horizontalMovement, verticalMovement);
@@ -110,8 +116,8 @@ public class MegamanController : MonoBehaviour
             bulletSpawnPoint = new Vector3(bulletSpawnPoint.x + Mathf.Abs(currentShootPoint.x * 2), bulletSpawnPoint.y);
         }
 
-        var newBullet = Instantiate(bullet, bulletSpawnPoint, shootPoint.rotation);
-        newBullet.Init(bulletDirection);
+        var newBullet = poolBulletManager.Pool.Get(); // Instantiate(bullet, bulletSpawnPoint, shootPoint.rotation);
+        newBullet.Init(bulletSpawnPoint, bulletDirection, poolBulletManager.Pool.Release);
 
         currentShootAnimDuration = shootAnimDuration;
     }
