@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class MegamanController : MonoBehaviour
+public class MegamanController : MonoBehaviour, IBulletEmiter
 {
     [Header("Components")]
     [SerializeField] private SpriteRenderer sr;
@@ -38,6 +38,7 @@ public class MegamanController : MonoBehaviour
     private float currentShootAnimDuration;
 
     private PoolBulletManager poolBulletManager;
+    private List<Bullet> bulletList = new List<Bullet>();
 
 
     [Header("Animation")]
@@ -64,6 +65,8 @@ public class MegamanController : MonoBehaviour
         UpdateAnimation();
     }
 
+
+
     private void Movement()
     {
         float joystickX = currentJoystickPosition.x;
@@ -74,7 +77,6 @@ public class MegamanController : MonoBehaviour
 
         rb.velocity = new Vector2(horizontalMovement, verticalMovement);
     }
-
 
     private void Jump()
     {
@@ -116,11 +118,22 @@ public class MegamanController : MonoBehaviour
             bulletSpawnPoint = new Vector3(bulletSpawnPoint.x + Mathf.Abs(currentShootPoint.x * 2), bulletSpawnPoint.y);
         }
 
-        var newBullet = poolBulletManager.Pool.Get(); // Instantiate(bullet, bulletSpawnPoint, shootPoint.rotation);
-        newBullet.Init(bulletSpawnPoint, bulletDirection, poolBulletManager.Pool.Release);
+        if (bulletList.Count < 3)
+        {
+            var newBullet = poolBulletManager.Pool.Get(); // Instantiate(bullet, bulletSpawnPoint, shootPoint.rotation);
+            newBullet.Init(bulletSpawnPoint, bulletDirection, poolBulletManager.Pool.Release, this);
+            bulletList.Add(newBullet);
 
-        currentShootAnimDuration = shootAnimDuration;
+            currentShootAnimDuration = shootAnimDuration;
+        }
     }
+
+    public void BulletDestroyed(Bullet bullet)
+    {
+        bulletList.Remove(bullet);
+    }
+
+
 
     public bool IsGrounded()
     {

@@ -2,41 +2,44 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Bullet : MonoBehaviour
 {
-    private Rigidbody2D rb;
-    private SpriteRenderer sr;
     private bool isInitialized;
 
+    [Header("Components")]
+    private Rigidbody2D rb;
+    private SpriteRenderer sr;
+
+    [Header("Speed")]
     [SerializeField] private float speed;
     private Vector2 movementDirection;
 
+    [Header("Collisions")]
+    [SerializeField] private LayerMask collisionMask;
+
+    [Header("Destroy")]
     private Action<Bullet> killAction;
-
-    public void Init(Vector2 _position, Vector2 _direction, Action<Bullet> _action)
-    {
-        transform.position = _position;
-        movementDirection = _direction;
-        killAction = _action;
-
-        isInitialized = true;
-
-    }
-
-
-    public void Init(Vector2 _direction, float _speed)
-    {
-        movementDirection = _direction;
-        speed = _speed;
-        isInitialized = true;
-    }
+    IBulletEmiter bulletEmitter;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
     }
+    public void Init(Vector2 _position, Vector2 _direction, Action<Bullet> _action, IBulletEmiter _bulletEmitter)
+    {
+        transform.position = _position;
+        movementDirection = _direction;
+        killAction = _action;
+        bulletEmitter = _bulletEmitter;
+
+        isInitialized = true;
+
+    }
+
+
 
 
     void FixedUpdate()
@@ -56,7 +59,13 @@ public class Bullet : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (!isInitialized) return;
-        Debug.Log("collision");
-        if (collision.gameObject.tag != "Player") killAction(this);
+        if ((collisionMask.value & 1 << collision.gameObject.layer) == 1 << collision.gameObject.layer)
+        DestroyBullet();
+    }
+
+    public void DestroyBullet()
+    {
+        bulletEmitter.BulletDestroyed(this);
+        killAction(this);
     }
 }

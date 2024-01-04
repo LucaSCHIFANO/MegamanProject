@@ -172,3 +172,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 3
+  collisionMask:
+    serializedVersion: 2
+    m_Bits: 64
