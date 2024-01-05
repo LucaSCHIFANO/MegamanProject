@@ -76,7 +76,7 @@ GameObject:
   - component: {fileID: 1747173923856472549}
   - component: {fileID: 2425367405057728953}
   - component: {fileID: 1881259996845250026}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Megaman
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -99,6 +99,7 @@ Transform:
   - {fileID: 6380762318750971775}
   - {fileID: 1083242494006953747}
   - {fileID: 3896194371913719887}
+  - {fileID: 6236648790433161012}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!50 &7755696457955278030
@@ -263,6 +264,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76ebd6668e1943a47b0a261448b61cdb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxHealth: 20
+  side: 0
   sr: {fileID: 8066897895788514397}
   bc: {fileID: 7328245005353537571}
   speed: 1
@@ -277,7 +280,7 @@ MonoBehaviour:
   DebugGroundCheck: 1
   bullet: {fileID: -6922166248971353187, guid: 9ccb88bdec3740040a58048a77d712eb, type: 3}
   shootPoint: {fileID: 1083242494006953747}
-  jumpingShootPoint: {fileID: 3896194371913719887}
+  jumpingShootPoint: {fileID: 6236648790433161012}
   shootAnimDuration: 0.3
 --- !u!95 &1881259996845250026
 Animator:
@@ -384,3 +387,34 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1972342573363090178
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6236648790433161012}
+  m_Layer: 0
+  m_Name: JumpShootPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6236648790433161012
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1972342573363090178}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.169, y: 0.037, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7730201049878437465}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

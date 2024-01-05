@@ -113,7 +113,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 0
   m_CollisionDetection: 1
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!61 &8502697907885906233
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -143,7 +143,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -174,4 +174,5 @@ MonoBehaviour:
   speed: 3
   collisionMask:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
+  side: 1

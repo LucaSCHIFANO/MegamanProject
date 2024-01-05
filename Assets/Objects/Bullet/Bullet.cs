@@ -18,6 +18,7 @@ public class Bullet : MonoBehaviour
 
     [Header("Collisions")]
     [SerializeField] private LayerMask collisionMask;
+    [SerializeField] private Entity.Side side;
 
     [Header("Destroy")]
     private Action<Bullet> killAction;
@@ -56,12 +57,26 @@ public class Bullet : MonoBehaviour
         else sr.flipX = false;
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!isInitialized) return;
         if ((collisionMask.value & 1 << collision.gameObject.layer) == 1 << collision.gameObject.layer)
-        DestroyBullet();
+        {
+            Entity colliderEntity = collision.gameObject.GetComponent<Entity>();
+
+            if (colliderEntity != null)
+            {
+                if (colliderEntity.GetSide != side)
+                {
+                    colliderEntity.TakeDamage();
+                    DestroyBullet();
+                }
+            }
+            else DestroyBullet();
+        }
+        
     }
+
 
     public void DestroyBullet()
     {

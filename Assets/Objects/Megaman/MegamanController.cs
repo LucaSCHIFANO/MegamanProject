@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class MegamanController : MonoBehaviour, IBulletEmiter
+public class MegamanController : Entity, IBulletEmiter
 {
     [Header("Components")]
     [SerializeField] private SpriteRenderer sr;
@@ -50,6 +50,10 @@ public class MegamanController : MonoBehaviour, IBulletEmiter
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+    }
+
+    void Start()
+    {
         poolBulletManager = PoolBulletManager.Instance;
     }
 
@@ -120,7 +124,7 @@ public class MegamanController : MonoBehaviour, IBulletEmiter
 
         if (bulletList.Count < 3)
         {
-            var newBullet = poolBulletManager.Pool.Get(); // Instantiate(bullet, bulletSpawnPoint, shootPoint.rotation);
+            var newBullet = poolBulletManager.Pool.Get();
             newBullet.Init(bulletSpawnPoint, bulletDirection, poolBulletManager.Pool.Release, this);
             bulletList.Add(newBullet);
 
