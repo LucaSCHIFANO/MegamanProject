@@ -15,6 +15,8 @@ public class MegamanController : Entity, IBulletEmiter
     [Header("Movement")]
     [SerializeField] private float speed;
     private Vector2 currentJoystickPosition;
+    private bool isCurrentlyGrounded;
+
 
     [Header("Jump")]
     [SerializeField] private float jumpForce;
@@ -29,6 +31,7 @@ public class MegamanController : Entity, IBulletEmiter
     [SerializeField] private LayerMask ground;
     [SerializeField] private bool DebugGroundCheck;
 
+
     [Header("Shoot")]
     [SerializeField] private Bullet bullet;
     [SerializeField] private Transform shootPoint;
@@ -39,6 +42,16 @@ public class MegamanController : Entity, IBulletEmiter
 
     private PoolBulletManager poolBulletManager;
     private List<Bullet> bulletList = new List<Bullet>();
+
+
+    [Header("Slide")]
+    [SerializeField] private float slideSpeed;
+    private bool isSliding;
+
+    [SerializeField] private float slideTime;
+    private float currentSlideTime;
+
+    private bool isSlideRight;
 
 
     [Header("Animation")]
@@ -57,6 +70,7 @@ public class MegamanController : Entity, IBulletEmiter
         poolBulletManager = PoolBulletManager.Instance;
     }
 
+
     private void FixedUpdate()
     {
         Movement();   
@@ -64,15 +78,33 @@ public class MegamanController : Entity, IBulletEmiter
 
     void Update()
     {
+        isCurrentlyGrounded = IsGrounded();
+
         Jump();
+
+        Slide();
 
         UpdateAnimation();
     }
 
+    public bool IsGrounded()
+    {
+        RaycastHit2D raycastHit = Physics2D.BoxCast(bc.bounds.center, bc.bounds.size, 0f, Vector2.down, extraHeightBelow, ground);
 
+        if (raycastHit.collider != null)
+        {
+            return raycastHit.collider != null;
+        }
+
+        return false;
+    }
+
+
+    #region Movement
 
     private void Movement()
     {
+        if (isSliding) return;
         float joystickX = currentJoystickPosition.x;
         if (joystickX != 0) joystickX = Mathf.Sign(joystickX);
 
@@ -88,21 +120,24 @@ public class MegamanController : Entity, IBulletEmiter
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
             currentJumpTime -= Time.deltaTime;
+            rb.gravityScale = gravityJump;
         }
+        else rb.gravityScale = gravityFall;
+
 
         if (currentJumpTime < 0) isJumping = false;
 
-        if (isJumping) rb.gravityScale = gravityJump;
-        else rb.gravityScale = gravityFall;
     }
 
     private void Shoot()
     {
+        if(isSliding) return;
+
         var bulletSpawnPoint = transform.position;
         var bulletDirection = Vector2.left;
         var currentShootPoint = Vector3.zero;
 
-        if (IsGrounded())
+        if (isCurrentlyGrounded)
         {
             bulletSpawnPoint += shootPoint.localPosition;
             currentShootPoint = shootPoint.localPosition;
@@ -138,18 +173,27 @@ public class MegamanController : Entity, IBulletEmiter
     }
 
 
-
-    public bool IsGrounded()
+    private void Slide()
     {
-        RaycastHit2D raycastHit = Physics2D.BoxCast(bc.bounds.center, bc.bounds.size, 0f, Vector2.down, extraHeightBelow, ground);
+        if (!isCurrentlyGrounded || sr.flipX != isSlideRight) isSliding = false;
 
-        if (raycastHit.collider != null)
+        if (isSliding)
         {
-            return raycastHit.collider != null;
+            var currentSlideSpeed = -slideSpeed;
+            if (sr.flipX) currentSlideSpeed *= -1;
+
+            rb.velocity = new Vector2(currentSlideSpeed, rb.velocity.y);
+            currentSlideTime -= Time.deltaTime;
         }
 
-        return false;
+
+        if (currentSlideTime < 0) isSliding = false;
+
     }
+
+
+    #endregion
+
 
     #region Debug
 
@@ -176,11 +220,15 @@ public class MegamanController : Entity, IBulletEmiter
 
         string animName = "";
 
-        if (IsGrounded())
+        if (isCurrentlyGrounded)
         {
             if (Mathf.Abs(rb.velocity.x) > 0f)
             {
-                if (!isRunningAnim)
+                if (isSliding)
+                {
+                    animName = "Megaman_Slide";
+                }
+                else if (!isRunningAnim)
                 {
                     isRunningAnim = true;
                     animName = "Megaman_PreRun";
@@ -235,9 +283,20 @@ public class MegamanController : Entity, IBulletEmiter
     {
         if (context.performed)
         {
-            if (!IsGrounded()) return;
-            isJumping = true;
-            currentJumpTime = jumpTime;
+            if (!isCurrentlyGrounded) return;
+            if (currentJoystickPosition.y < 0 && !isSliding) 
+            {
+                isSliding = true;
+                currentSlideTime = slideTime;
+                isSlideRight = sr.flipX;
+            }
+            else
+            {
+                isJumping = true;
+                currentJumpTime = jumpTime;
+
+                isSliding = false;
+            }
         }
         else if (context.canceled) isJumping = false;
     }

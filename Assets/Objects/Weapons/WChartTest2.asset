@@ -12,4 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17e0a8caa1db9c64c98263d1b915ccd4, type: 3}
   m_Name: WChartTest2
   m_EditorClassIdentifier: 
-  weaponDamages: []
+  weaponDamages:
+  - WeaponType: 1
+    Damage: 10
