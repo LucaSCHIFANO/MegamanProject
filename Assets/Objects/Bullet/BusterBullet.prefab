@@ -172,7 +172,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 3
+  baseDamage: 2
   collisionMask:
     serializedVersion: 2
     m_Bits: 192
-  side: 1
+  side: 0
+  weaponType: 1
