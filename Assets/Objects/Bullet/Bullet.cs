@@ -16,9 +16,13 @@ public class Bullet : MonoBehaviour
     [SerializeField] private float speed;
     private Vector2 movementDirection;
 
+    [Header("Base Damage")]
+    [SerializeField] private int baseDamage;
+
     [Header("Collisions")]
     [SerializeField] private LayerMask collisionMask;
-    [SerializeField] private Entity.Side side;
+    [SerializeField] private GameData.Side side;
+    [SerializeField] private GameData.WeaponType weaponType;
 
     [Header("Destroy")]
     private Action<Bullet> killAction;
@@ -68,7 +72,7 @@ public class Bullet : MonoBehaviour
             {
                 if (colliderEntity.GetSide != side)
                 {
-                    colliderEntity.TakeDamage();
+                    colliderEntity.TakeDamage(weaponType, baseDamage);
                     DestroyBullet();
                 }
             }

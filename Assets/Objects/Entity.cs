@@ -8,19 +8,24 @@ public class Entity : MonoBehaviour
     [SerializeField] private int maxHealth;
     private int currentHealth;
 
-    [SerializeField] private Side side;
+    [SerializeField] private GameData.Side side;
 
-    public Side GetSide { get => side; }
-
-    public enum Side
+    public GameData.Side GetSide { get => side; }
+    private void Awake()
     {
-        Player,
-        Enemy
+        currentHealth = maxHealth;
     }
 
 
-    public void TakeDamage()
+    public virtual void TakeDamage(GameData.WeaponType weaponType, int baseDamage)
     {
-        Debug.Log($"{gameObject.name} take damage !");
+        ReduceLife(baseDamage);
+    }
+
+    public virtual void ReduceLife(int damage)
+    {
+        currentHealth -= damage;
+        Debug.Log($"{gameObject.name} take {damage} damage!");
+        if (currentHealth <= 0) Debug.Log($"{gameObject.name} is dead");
     }
 }
