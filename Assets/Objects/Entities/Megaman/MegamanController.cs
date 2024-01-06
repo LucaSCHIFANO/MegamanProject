@@ -222,7 +222,7 @@ public class MegamanController : Entity, IBulletEmiter
 
         if (isCurrentlyGrounded)
         {
-            if (Mathf.Abs(rb.velocity.x) > 0f)
+            if (Mathf.Abs(rb.velocity.x) > 0.1f)
             {
                 if (isSliding)
                 {

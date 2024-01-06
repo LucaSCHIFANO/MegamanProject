@@ -78,7 +78,7 @@ GameObject:
   - component: {fileID: 1881259996845250026}
   m_Layer: 7
   m_Name: Megaman
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -268,7 +268,7 @@ MonoBehaviour:
   side: 0
   sr: {fileID: 8066897895788514397}
   bc: {fileID: 7328245005353537571}
-  speed: 1
+  speed: 0.75
   jumpForce: 1.5
   jumpTime: 0.25
   gravityJump: 1
@@ -282,6 +282,8 @@ MonoBehaviour:
   shootPoint: {fileID: 1083242494006953747}
   jumpingShootPoint: {fileID: 6236648790433161012}
   shootAnimDuration: 0.3
+  slideSpeed: 1.5
+  slideTime: 0.4
 --- !u!95 &1881259996845250026
 Animator:
   serializedVersion: 5
