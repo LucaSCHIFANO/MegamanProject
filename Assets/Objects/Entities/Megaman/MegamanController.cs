@@ -226,13 +226,14 @@ public class MegamanController : Entity, IBulletEmiter
             {
                 if (isSliding)
                 {
+                    isRunningAnim = false;
                     animName = "Megaman_Slide";
                 }
                 else if (!isRunningAnim)
                 {
                     isRunningAnim = true;
                     animName = "Megaman_PreRun";
-                }else animName = "Megaman_Run";
+                }
             }
             else
             {
