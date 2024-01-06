@@ -5,8 +5,11 @@ using UnityEngine;
 
 public class Room : MonoBehaviour
 {
+    [Header("Room Limits")]
     [SerializeField] private Vector3 bottomLeftLimit = new Vector3(-1.2f, -0.9f, 0);
     [SerializeField] private Vector3 topRightLimit = new Vector3(1.2f, 0.9f, 0);
+    
+    [Header("Debug")]
     [SerializeField] private Color handlesColor;
     [SerializeField] private float lineThickness = 3;
 

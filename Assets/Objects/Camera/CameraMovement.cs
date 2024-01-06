@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class CameraMovement : MonoBehaviour
 {
+    [Header("Camera")]
     [SerializeField] private Transform target;
     private Vector3 hiddenTarget;
 
@@ -13,10 +14,11 @@ public class CameraMovement : MonoBehaviour
     [SerializeField] private float speed;
     private float currentSpeed;
 
+
+    [Header("Transition")]
+    [SerializeField] float roomTransitionTime;
     private Room currentRoom;
     private Vector2 cameraSize;
-
-    [SerializeField] float roomTransitionTime;
 
 
 
