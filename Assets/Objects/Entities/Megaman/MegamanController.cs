@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -58,11 +59,21 @@ public class MegamanController : Entity, IBulletEmiter
     private bool isRunningAnim;
     private bool isShootingAnim;
     private bool lastShootingAnim;
+    private float preRunDuration;
+    private float preRunTimer;
+
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+
+        foreach (var anim in animator.runtimeAnimatorController.animationClips) 
+        {
+            if (anim.name == "Megaman_PreRun") preRunDuration = anim.length; break;
+            
+        }
+        
     }
 
     void Start()
@@ -217,6 +228,7 @@ public class MegamanController : Entity, IBulletEmiter
     {
         if (currentJoystickPosition.x < 0f) sr.flipX = false;
         else if (currentJoystickPosition.x > 0f) sr.flipX = true;
+        preRunTimer -= Time.deltaTime;
 
         string animName = "";
 
@@ -232,8 +244,9 @@ public class MegamanController : Entity, IBulletEmiter
                 else if (!isRunningAnim)
                 {
                     isRunningAnim = true;
+                    preRunTimer = preRunDuration;
                     animName = "Megaman_PreRun";
-                }
+                }else if(preRunTimer < 0f) animName = "Megaman_Run";
             }
             else
             {
