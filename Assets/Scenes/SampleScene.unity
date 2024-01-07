@@ -219,6 +219,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bottomLeftLimit: {x: -1.2, y: -0.9, z: 0}
   topRightLimit: {x: 3.6, y: 0.9, z: 0}
+  transitionSide: 2
+  transitionBoxesThickness: 0.1
+  newRoomID: 1
   handlesColor: {r: 1, g: 0, b: 0, a: 1}
   lineThickness: 3
 --- !u!4 &113783583
@@ -1320,6 +1323,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bottomLeftLimit: {x: -1.2, y: -0.9, z: 0}
   topRightLimit: {x: 1.2, y: 0.9, z: 0}
+  transitionSide: 0
+  transitionBoxesThickness: 0.1
+  newRoomID: 0
   handlesColor: {r: 0.19524407, g: 1, b: 0, a: 1}
   lineThickness: 3
 --- !u!1 &744797218
@@ -1962,7 +1968,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1250385004
 Transform:
   m_ObjectHideFlags: 0
@@ -3387,7 +3393,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!61 &1706299528
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -3519,6 +3525,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bottomLeftLimit: {x: -1.2, y: -0.9, z: 0}
   topRightLimit: {x: 1.2, y: 0.9, z: 0}
+  transitionSide: 0
+  transitionBoxesThickness: 0.1
+  newRoomID: 0
   handlesColor: {r: 1, g: 0, b: 0, a: 1}
   lineThickness: 3
 --- !u!4 &1829821482

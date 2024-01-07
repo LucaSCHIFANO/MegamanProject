@@ -58,12 +58,14 @@ public class CameraMovement : MonoBehaviour
 
     public void ChangeRoom(Room newRoom, bool hasTransition)
     {
+        currentRoom?.SetRoomActive(false);
         currentRoom = newRoom;
         var htXpos = Mathf.Clamp(target.position.x, currentRoom.BottomLeftLimit.x + cameraSize.x / 2, currentRoom.TopRightLimit.x - cameraSize.x / 2);
         var htYpos = Mathf.Clamp(target.position.y, currentRoom.BottomLeftLimit.y + cameraSize.y / 2, currentRoom.TopRightLimit.y - cameraSize.y / 2);
         hiddenTarget = new Vector3(htXpos, htYpos, 0);
 
         if(hasTransition) StartCoroutine(RoomTransition());
+        else currentRoom.SetRoomActive(true);
     }
 
     IEnumerator RoomTransition()
@@ -71,6 +73,7 @@ public class CameraMovement : MonoBehaviour
         currentSpeed = Vector2.Distance(transform.position, hiddenTarget) / roomTransitionTime;
         yield return new WaitForSeconds(roomTransitionTime);
         currentSpeed = speed;
+        currentRoom.SetRoomActive(true);
     }
 
 }
