@@ -31,8 +31,9 @@ public class MegamanController : Entity, IBulletEmiter
     [SerializeField] private float gravityFall;
 
     [SerializeField] float extraHeightBelow;
+    [SerializeField] float extraHeightAbove;
     [SerializeField] private LayerMask ground;
-    [SerializeField] private bool DebugGroundCheck;
+    [SerializeField] private bool DebugDebugCollisionCheckCheck;
 
 
     [Header("Shoot")]
@@ -114,6 +115,8 @@ public class MegamanController : Entity, IBulletEmiter
                 MoveTo();
                 break;
         }
+
+        if (IsTouchingRoof()) isJumping = false;
         
     }
 
@@ -123,6 +126,18 @@ public class MegamanController : Entity, IBulletEmiter
     public bool IsGrounded()
     {
         RaycastHit2D raycastHit = Physics2D.BoxCast(bc.bounds.center, bc.bounds.size, 0f, Vector2.down, extraHeightBelow, ground);
+
+        if (raycastHit.collider != null)
+        {
+            return raycastHit.collider != null;
+        }
+
+        return false;
+    }
+
+    public bool IsTouchingRoof()
+    {
+        RaycastHit2D raycastHit = Physics2D.BoxCast(bc.bounds.center, bc.bounds.size, 0f, Vector2.up, extraHeightAbove, ground);
 
         if (raycastHit.collider != null)
         {
@@ -303,11 +318,16 @@ public class MegamanController : Entity, IBulletEmiter
 
     private void OnDrawGizmosSelected()
     {
-        if (DebugGroundCheck && bc != null)
+        if (DebugDebugCollisionCheckCheck && bc != null)
         {
             Debug.DrawRay(bc.bounds.center + new Vector3(bc.bounds.extents.x, -bc.bounds.extents.y), Vector2.down * (extraHeightBelow), Color.red);
             Debug.DrawRay(bc.bounds.center - new Vector3(bc.bounds.extents.x, bc.bounds.extents.y), Vector2.down * (extraHeightBelow), Color.red);
             Debug.DrawRay(bc.bounds.center - new Vector3(bc.bounds.extents.x, bc.bounds.extents.y + extraHeightBelow), Vector2.right * (bc.bounds.extents.x) * 2, Color.red);
+
+            Debug.DrawRay(bc.bounds.center + new Vector3(bc.bounds.extents.x, bc.bounds.extents.y), Vector2.up * (extraHeightAbove), Color.red);
+            Debug.DrawRay(bc.bounds.center + new Vector3(-bc.bounds.extents.x, bc.bounds.extents.y), Vector2.up * (extraHeightAbove), Color.red);
+            Debug.DrawRay(bc.bounds.center + new Vector3(-bc.bounds.extents.x, bc.bounds.extents.y + extraHeightAbove), Vector2.right * (bc.bounds.extents.x) * 2, Color.red);
+
         }
     }
 

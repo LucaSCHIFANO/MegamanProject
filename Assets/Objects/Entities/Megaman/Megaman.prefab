@@ -274,10 +274,11 @@ MonoBehaviour:
   gravityJump: 1
   gravityFall: 1.2
   extraHeightBelow: 0.025
+  extraHeightAbove: 0.025
   ground:
     serializedVersion: 2
     m_Bits: 64
-  DebugGroundCheck: 1
+  DebugDebugCollisionCheckCheck: 1
   bullet: {fileID: -6922166248971353187, guid: 9ccb88bdec3740040a58048a77d712eb, type: 3}
   shootPoint: {fileID: 1083242494006953747}
   jumpingShootPoint: {fileID: 6236648790433161012}
