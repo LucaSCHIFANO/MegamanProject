@@ -1,14 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using static Room;
 
 public class RoomTransition : MonoBehaviour
 {
+    [Header("Transition Data")]
     [SerializeField] TransitionSide transitionSide;
     [SerializeField] int newRoomID;
-    private BoxCollider2D bc;
+
     public TransitionSide TransitionSide { get => transitionSide;}
+    private BoxCollider2D bc;
 
     private void Awake()
     {

@@ -1,7 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -67,13 +65,13 @@ public class MegamanController : Entity, IBulletEmiter
     private float preRunTimer;
 
 
-
     enum MegamanState
     {
         CanMove,
         MovementLock,
         RoomTransition,
     }
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -82,7 +80,6 @@ public class MegamanController : Entity, IBulletEmiter
         foreach (var anim in animator.runtimeAnimatorController.animationClips) 
         {
             if (anim.name == "Megaman_PreRun") { preRunDuration = anim.length; break; }
-            
         }
     }
 
@@ -107,22 +104,16 @@ public class MegamanController : Entity, IBulletEmiter
         switch (state)
         {
             case MegamanState.CanMove:
-                Jump();
-
-                Slide();
-
-                UpdateAnimation();
+                Jump(); Slide(); UpdateAnimation();
                 break;
+
             case MegamanState.MovementLock:
                 break;
+
             case MegamanState.RoomTransition:
                 MoveTo();
                 break;
-            default:
-                break;
         }
-
-
         
     }
 
@@ -163,17 +154,16 @@ public class MegamanController : Entity, IBulletEmiter
             case MegamanState.CanMove:
                 rb.gravityScale = gravityFall;
                 break;
+
             case MegamanState.MovementLock:
                 break;
+
             case MegamanState.RoomTransition:
                 isJumping = false;
                 rb.velocity = Vector2.zero;
                 rb.gravityScale = 0;
                 break;
-            default:
-                break;
         }
-
 
     }
 
