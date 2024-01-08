@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor.UI;
 using UnityEngine;
 
@@ -16,10 +17,11 @@ public class CameraMovement : MonoBehaviour
 
 
     [Header("Transition")]
-    [SerializeField] float roomTransitionTime;
+    
     private Room currentRoom;
+    private Room previousRoom; //use during transition
     private Vector2 cameraSize;
-
+    private bool inTransition;
 
 
     private static CameraMovement _instance = null;
@@ -58,22 +60,42 @@ public class CameraMovement : MonoBehaviour
 
     public void ChangeRoom(Room newRoom, bool hasTransition)
     {
-        currentRoom?.SetRoomActive(false);
+        if (currentRoom != null)
+        {
+            currentRoom.SetRoomActive(false);
+            previousRoom = currentRoom;
+        }
+
         currentRoom = newRoom;
         var htXpos = Mathf.Clamp(target.position.x, currentRoom.BottomLeftLimit.x + cameraSize.x / 2, currentRoom.TopRightLimit.x - cameraSize.x / 2);
         var htYpos = Mathf.Clamp(target.position.y, currentRoom.BottomLeftLimit.y + cameraSize.y / 2, currentRoom.TopRightLimit.y - cameraSize.y / 2);
         hiddenTarget = new Vector3(htXpos, htYpos, 0);
 
-        if(hasTransition) StartCoroutine(RoomTransition());
+        if (hasTransition) StartCoroutine(RoomTransition());
         else currentRoom.SetRoomActive(true);
+        
     }
 
     IEnumerator RoomTransition()
     {
-        currentSpeed = Vector2.Distance(transform.position, hiddenTarget) / roomTransitionTime;
-        yield return new WaitForSeconds(roomTransitionTime);
+        inTransition = true;
+        currentSpeed = Vector2.Distance(transform.position, hiddenTarget) / GameData.roomTransitionTime;
+
+        yield return new WaitForSeconds(GameData.roomTransitionTime);
+
+        inTransition = false;
         currentSpeed = speed;
         currentRoom.SetRoomActive(true);
+
+        previousRoom = currentRoom;
     }
+
+/*    public Room.TransitionSide GetCurrentRoomTransition()
+    {
+        Debug.Log(previousRoom.name);
+        Debug.Log(previousRoom.GetTransitionSide);
+
+         return previousRoom.GetTransitionSide;
+    }*/
 
 }

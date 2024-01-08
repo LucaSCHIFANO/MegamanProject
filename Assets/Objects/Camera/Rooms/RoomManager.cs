@@ -6,6 +6,7 @@ using UnityEngine.Pool;
 public class RoomManager : MonoBehaviour
 {
     private CameraMovement currentCamera;
+    [SerializeField] private int startingRoom;
     [SerializeField] private List<Room> rooms= new List<Room>();
 
     private static RoomManager _instance = null;
@@ -26,7 +27,12 @@ public class RoomManager : MonoBehaviour
 
         if(currentCamera != null)
         {
-            SetNewRoom(0, false);
+            if (startingRoom < rooms.Count) SetNewRoom(startingRoom, false);
+            else
+            {
+                Debug.LogError($"Room {startingRoom} not found.");
+                SetNewRoom(0, false);
+            }
         }
     }
 

@@ -17,7 +17,11 @@ public class MegamanController : Entity, IBulletEmiter
     [SerializeField] private float speed;
     private Vector2 currentJoystickPosition;
     private bool isCurrentlyGrounded;
+    private MegamanState state;
 
+    [Header("RoomTransition")]
+    private Vector2 roomTransitionTarget;
+    private float transitionSpeed;
 
     [Header("Jump")]
     [SerializeField] private float jumpForce;
@@ -63,6 +67,13 @@ public class MegamanController : Entity, IBulletEmiter
     private float preRunTimer;
 
 
+
+    enum MegamanState
+    {
+        CanMove,
+        MovementLock,
+        RoomTransition,
+    }
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -70,10 +81,9 @@ public class MegamanController : Entity, IBulletEmiter
 
         foreach (var anim in animator.runtimeAnimatorController.animationClips) 
         {
-            if (anim.name == "Megaman_PreRun") preRunDuration = anim.length; break;
+            if (anim.name == "Megaman_PreRun") { preRunDuration = anim.length; break; }
             
         }
-        
     }
 
     void Start()
@@ -84,19 +94,40 @@ public class MegamanController : Entity, IBulletEmiter
 
     private void FixedUpdate()
     {
-        Movement();   
+        if (state == MegamanState.CanMove) 
+        { 
+            Movement();
+        }
     }
 
     void Update()
     {
         isCurrentlyGrounded = IsGrounded();
 
-        Jump();
+        switch (state)
+        {
+            case MegamanState.CanMove:
+                Jump();
 
-        Slide();
+                Slide();
 
-        UpdateAnimation();
+                UpdateAnimation();
+                break;
+            case MegamanState.MovementLock:
+                break;
+            case MegamanState.RoomTransition:
+                MoveTo();
+                break;
+            default:
+                break;
+        }
+
+
+        
     }
+
+
+    #region Collisions 
 
     public bool IsGrounded()
     {
@@ -110,8 +141,41 @@ public class MegamanController : Entity, IBulletEmiter
         return false;
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.tag == "RoomTransition")
+        {
+            StartCoroutine(RoomTransition(collision.GetComponent<RoomTransition>()));
+        }
+    }
+
+    #endregion
+
 
     #region Movement
+
+    private void ChangeState(MegamanState _state)
+    {
+        state = _state;
+
+        switch (state)
+        {
+            case MegamanState.CanMove:
+                rb.gravityScale = gravityFall;
+                break;
+            case MegamanState.MovementLock:
+                break;
+            case MegamanState.RoomTransition:
+                isJumping = false;
+                rb.velocity = Vector2.zero;
+                rb.gravityScale = 0;
+                break;
+            default:
+                break;
+        }
+
+
+    }
 
     private void Movement()
     {
@@ -183,7 +247,6 @@ public class MegamanController : Entity, IBulletEmiter
         bulletList.Remove(bullet);
     }
 
-
     private void Slide()
     {
         if (!isCurrentlyGrounded || sr.flipX != isSlideRight) isSliding = false;
@@ -200,6 +263,46 @@ public class MegamanController : Entity, IBulletEmiter
 
         if (currentSlideTime < 0) isSliding = false;
 
+    }
+
+
+
+
+    #endregion
+
+    
+    #region Room Transition
+
+    private void MoveTo()
+    {
+        transform.position = Vector2.MoveTowards(transform.position, roomTransitionTarget, transitionSpeed * Time.deltaTime);
+    }
+
+    IEnumerator RoomTransition(RoomTransition roomTransition)
+    {
+        ChangeState(MegamanState.RoomTransition);
+        switch (roomTransition.TransitionSide)
+        {
+            case Room.TransitionSide.Left:
+                roomTransitionTarget = transform.position + new Vector3(-GameData.roomColliderThickness * GameData.roomTransitionDistance, 0, 0); 
+                break;
+            case Room.TransitionSide.Right:
+                roomTransitionTarget = transform.position + new Vector3(GameData.roomColliderThickness * GameData.roomTransitionDistance, 0, 0);
+                break;
+            case Room.TransitionSide.Top:
+                roomTransitionTarget = transform.position + new Vector3(0, GameData.roomColliderThickness * GameData.roomTransitionDistance, 0);
+                break;
+            case Room.TransitionSide.Bottom:
+                roomTransitionTarget = transform.position + new Vector3(0, -GameData.roomColliderThickness * GameData.roomTransitionDistance, 0);
+                break;
+            default:
+                break;
+        }
+        transitionSpeed = Vector2.Distance(transform.position, roomTransitionTarget) / GameData.roomTransitionTime;
+
+        yield return new WaitForSeconds(GameData.roomTransitionTime);
+
+        ChangeState(MegamanState.CanMove);
     }
 
 
@@ -295,6 +398,8 @@ public class MegamanController : Entity, IBulletEmiter
 
     public void JumpInput(InputAction.CallbackContext context)
     {
+        if (state != MegamanState.CanMove) return;
+
         if (context.performed)
         {
             if (!isCurrentlyGrounded) return;
@@ -317,6 +422,8 @@ public class MegamanController : Entity, IBulletEmiter
 
     public void ShootInput(InputAction.CallbackContext context)
     {
+        if (state != MegamanState.CanMove) return;
+
         if (context.performed)
         {
             Shoot();
