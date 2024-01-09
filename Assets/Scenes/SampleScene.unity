@@ -4252,7 +4252,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b547265d54e08c4facdb2116bc933cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingRoom: 2
+  startingRoom: 0
   rooms:
   - {fileID: 2117974460}
   - {fileID: 171177091}
@@ -4561,13 +4561,29 @@ PrefabInstance:
       propertyPath: m_Name
       value: Megaman
       objectReference: {fileID: 0}
+    - target: {fileID: 4774328286403552923, guid: f4364f0a7f457214eb6adb5b4a0f371d, type: 3}
+      propertyPath: m_Size.x
+      value: 0.2375
+      objectReference: {fileID: 0}
+    - target: {fileID: 4774328286403552923, guid: f4364f0a7f457214eb6adb5b4a0f371d, type: 3}
+      propertyPath: m_Size.y
+      value: 0.1285
+      objectReference: {fileID: 0}
+    - target: {fileID: 4774328286403552923, guid: f4364f0a7f457214eb6adb5b4a0f371d, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4774328286403552923, guid: f4364f0a7f457214eb6adb5b4a0f371d, type: 3}
+      propertyPath: m_Offset.y
+      value: -0.085
+      objectReference: {fileID: 0}
     - target: {fileID: 7730201049878437465, guid: f4364f0a7f457214eb6adb5b4a0f371d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4.756
+      value: -0.005
       objectReference: {fileID: 0}
     - target: {fileID: 7730201049878437465, guid: f4364f0a7f457214eb6adb5b4a0f371d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.155
+      value: -0.602
       objectReference: {fileID: 0}
     - target: {fileID: 7730201049878437465, guid: f4364f0a7f457214eb6adb5b4a0f371d, type: 3}
       propertyPath: m_LocalPosition.z

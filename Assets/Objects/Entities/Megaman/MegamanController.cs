@@ -7,7 +7,9 @@ public class MegamanController : Entity, IBulletEmiter
 {
     [Header("Components")]
     [SerializeField] private SpriteRenderer sr;
-    [SerializeField] private BoxCollider2D bc;
+    [SerializeField] private BoxCollider2D boxCollider;
+    [SerializeField] private BoxCollider2D slideBoxCollider;
+    private BoxCollider2D currentBoxCollider;
     private Rigidbody2D rb;
     private Animator animator;
 
@@ -78,6 +80,8 @@ public class MegamanController : Entity, IBulletEmiter
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
 
+        SetCurrentCollider(false);
+
         foreach (var anim in animator.runtimeAnimatorController.animationClips) 
         {
             if (anim.name == "Megaman_PreRun") { preRunDuration = anim.length; break; }
@@ -125,7 +129,9 @@ public class MegamanController : Entity, IBulletEmiter
 
     public bool IsGrounded()
     {
-        RaycastHit2D raycastHit = Physics2D.BoxCast(bc.bounds.center, bc.bounds.size, 0f, Vector2.down, extraHeightBelow, ground);
+       // if(currentBoxCollider == null) return false;
+
+        RaycastHit2D raycastHit = Physics2D.BoxCast(currentBoxCollider.bounds.center, currentBoxCollider.bounds.size, 0f, Vector2.down, extraHeightBelow, ground);
 
         if (raycastHit.collider != null)
         {
@@ -137,7 +143,9 @@ public class MegamanController : Entity, IBulletEmiter
 
     public bool IsTouchingRoof()
     {
-        RaycastHit2D raycastHit = Physics2D.BoxCast(bc.bounds.center, bc.bounds.size, 0f, Vector2.up, extraHeightAbove, ground);
+       // if (currentBoxCollider == null) return false;
+
+        RaycastHit2D raycastHit = Physics2D.BoxCast(currentBoxCollider.bounds.center, currentBoxCollider.bounds.size, 0f, Vector2.up, extraHeightAbove, ground);
 
         if (raycastHit.collider != null)
         {
@@ -152,6 +160,21 @@ public class MegamanController : Entity, IBulletEmiter
         if (collision.gameObject.tag == "RoomTransition")
         {
             StartCoroutine(RoomTransition(collision.GetComponent<RoomTransition>()));
+        }
+    }
+
+    private void SetCurrentCollider(bool isSliding)
+    {
+        if (isSliding)
+        {
+            boxCollider.enabled = false;
+            slideBoxCollider.enabled = true;
+            currentBoxCollider = slideBoxCollider;
+        }
+        else{
+            boxCollider.enabled = true;
+            slideBoxCollider.enabled = false;
+            currentBoxCollider = boxCollider;
         }
     }
 
@@ -254,19 +277,27 @@ public class MegamanController : Entity, IBulletEmiter
 
     private void Slide()
     {
-        if (!isCurrentlyGrounded || sr.flipX != isSlideRight) isSliding = false;
-
+        if (!isCurrentlyGrounded || (sr.flipX != isSlideRight && !IsTouchingRoof()))
+        {
+            isSliding = false;
+            SetCurrentCollider(false);
+        }
         if (isSliding)
         {
             var currentSlideSpeed = -slideSpeed;
             if (sr.flipX) currentSlideSpeed *= -1;
+
 
             rb.velocity = new Vector2(currentSlideSpeed, rb.velocity.y);
             currentSlideTime -= Time.deltaTime;
         }
 
 
-        if (currentSlideTime < 0) isSliding = false;
+        if (currentSlideTime < 0 && !IsTouchingRoof())
+        {
+            SetCurrentCollider(false);
+            isSliding = false;
+        }
 
     }
 
@@ -318,15 +349,15 @@ public class MegamanController : Entity, IBulletEmiter
 
     private void OnDrawGizmosSelected()
     {
-        if (DebugDebugCollisionCheckCheck && bc != null)
+        if (DebugDebugCollisionCheckCheck && currentBoxCollider != null)
         {
-            Debug.DrawRay(bc.bounds.center + new Vector3(bc.bounds.extents.x, -bc.bounds.extents.y), Vector2.down * (extraHeightBelow), Color.red);
-            Debug.DrawRay(bc.bounds.center - new Vector3(bc.bounds.extents.x, bc.bounds.extents.y), Vector2.down * (extraHeightBelow), Color.red);
-            Debug.DrawRay(bc.bounds.center - new Vector3(bc.bounds.extents.x, bc.bounds.extents.y + extraHeightBelow), Vector2.right * (bc.bounds.extents.x) * 2, Color.red);
+            Debug.DrawRay(currentBoxCollider.bounds.center + new Vector3(currentBoxCollider.bounds.extents.x, -currentBoxCollider.bounds.extents.y), Vector2.down * (extraHeightBelow), Color.red);
+            Debug.DrawRay(currentBoxCollider.bounds.center - new Vector3(currentBoxCollider.bounds.extents.x, currentBoxCollider.bounds.extents.y), Vector2.down * (extraHeightBelow), Color.red);
+            Debug.DrawRay(currentBoxCollider.bounds.center - new Vector3(currentBoxCollider.bounds.extents.x, currentBoxCollider.bounds.extents.y + extraHeightBelow), Vector2.right * (currentBoxCollider.bounds.extents.x) * 2, Color.red);
 
-            Debug.DrawRay(bc.bounds.center + new Vector3(bc.bounds.extents.x, bc.bounds.extents.y), Vector2.up * (extraHeightAbove), Color.red);
-            Debug.DrawRay(bc.bounds.center + new Vector3(-bc.bounds.extents.x, bc.bounds.extents.y), Vector2.up * (extraHeightAbove), Color.red);
-            Debug.DrawRay(bc.bounds.center + new Vector3(-bc.bounds.extents.x, bc.bounds.extents.y + extraHeightAbove), Vector2.right * (bc.bounds.extents.x) * 2, Color.red);
+            Debug.DrawRay(currentBoxCollider.bounds.center + new Vector3(currentBoxCollider.bounds.extents.x, currentBoxCollider.bounds.extents.y), Vector2.up * (extraHeightAbove), Color.red);
+            Debug.DrawRay(currentBoxCollider.bounds.center + new Vector3(-currentBoxCollider.bounds.extents.x, currentBoxCollider.bounds.extents.y), Vector2.up * (extraHeightAbove), Color.red);
+            Debug.DrawRay(currentBoxCollider.bounds.center + new Vector3(-currentBoxCollider.bounds.extents.x, currentBoxCollider.bounds.extents.y + extraHeightAbove), Vector2.right * (currentBoxCollider.bounds.extents.x) * 2, Color.red);
 
         }
     }
@@ -410,7 +441,7 @@ public class MegamanController : Entity, IBulletEmiter
     {
         if (state != MegamanState.CanMove) return;
 
-        if (context.performed)
+        if (context.performed && !IsTouchingRoof())
         {
             if (!isCurrentlyGrounded) return;
             if (currentJoystickPosition.y < 0 && !isSliding) 
@@ -418,6 +449,7 @@ public class MegamanController : Entity, IBulletEmiter
                 isSliding = true;
                 currentSlideTime = slideTime;
                 isSlideRight = sr.flipX;
+                SetCurrentCollider(true);
             }
             else
             {
