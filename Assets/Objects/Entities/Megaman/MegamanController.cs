@@ -19,6 +19,10 @@ public class MegamanController : Entity, IBulletEmiter
     private bool isCurrentlyGrounded;
     private MegamanState state;
 
+    private bool joystickReset = true;
+    [SerializeField] private float preRunTime;
+    private float currentPreRunTime;
+
     [Header("RoomTransition")]
     private Vector2 roomTransitionTarget;
     private float transitionSpeed;
@@ -64,8 +68,6 @@ public class MegamanController : Entity, IBulletEmiter
     private bool isRunningAnim;
     private bool isShootingAnim;
     private bool lastShootingAnim;
-    private float preRunDuration;
-    private float preRunTimer;
 
 
     enum MegamanState
@@ -81,11 +83,6 @@ public class MegamanController : Entity, IBulletEmiter
         animator = GetComponent<Animator>();
 
         SetCurrentCollider(false);
-
-        foreach (var anim in animator.runtimeAnimatorController.animationClips) 
-        {
-            if (anim.name == "Megaman_PreRun") { preRunDuration = anim.length; break; }
-        }
     }
 
     void Start()
@@ -191,6 +188,7 @@ public class MegamanController : Entity, IBulletEmiter
         {
             case MegamanState.CanMove:
                 rb.gravityScale = gravityFall;
+                if (currentJoystickPosition == Vector2.zero) joystickReset = true;
                 break;
 
             case MegamanState.MovementLock:
@@ -208,13 +206,31 @@ public class MegamanController : Entity, IBulletEmiter
     private void Movement()
     {
         if (isSliding) return;
+
         float joystickX = currentJoystickPosition.x;
         if (joystickX != 0) joystickX = Mathf.Sign(joystickX);
 
         float horizontalMovement = joystickX * speed;
         float verticalMovement = rb.velocity.y;
 
-        rb.velocity = new Vector2(horizontalMovement, verticalMovement);
+
+        if (joystickReset && joystickX != 0)
+        {
+            joystickReset = false;
+            currentPreRunTime = preRunTime;
+            rb.velocity = new Vector2(horizontalMovement, verticalMovement);
+        }
+        else if (currentPreRunTime <= 0)
+        {
+            rb.velocity = new Vector2(horizontalMovement, verticalMovement);
+
+        }
+        else
+        {
+            rb.velocity = new Vector2(0, verticalMovement);
+            currentPreRunTime -= Time.deltaTime;
+        }
+            
     }
 
     private void Jump()
@@ -372,25 +388,22 @@ public class MegamanController : Entity, IBulletEmiter
     {
         if (currentJoystickPosition.x < 0f) sr.flipX = false;
         else if (currentJoystickPosition.x > 0f) sr.flipX = true;
-        preRunTimer -= Time.deltaTime;
 
         string animName = "";
 
         if (isCurrentlyGrounded)
         {
-            if (Mathf.Abs(rb.velocity.x) > 0.1f)
+            if(currentPreRunTime > 0)
+            {
+                animName = "Megaman_PreRun";
+            }
+            else if (Mathf.Abs(rb.velocity.x) > 0.1f)
             {
                 if (isSliding)
                 {
                     isRunningAnim = false;
                     animName = "Megaman_Slide";
-                }
-                else if (!isRunningAnim)
-                {
-                    isRunningAnim = true;
-                    preRunTimer = preRunDuration;
-                    animName = "Megaman_PreRun";
-                }else if(preRunTimer < 0f) animName = "Megaman_Run";
+                }else if(currentPreRunTime <= 0f) animName = "Megaman_Run";
             }
             else
             {
@@ -435,6 +448,8 @@ public class MegamanController : Entity, IBulletEmiter
     public void MovementInput(InputAction.CallbackContext context)
     {
         currentJoystickPosition = context.ReadValue<Vector2>();
+
+        if (currentJoystickPosition == Vector2.zero && state == MegamanState.CanMove) joystickReset = true;
     }
 
     public void JumpInput(InputAction.CallbackContext context)
@@ -444,6 +459,10 @@ public class MegamanController : Entity, IBulletEmiter
         if (context.performed && !IsTouchingRoof())
         {
             if (!isCurrentlyGrounded) return;
+
+            joystickReset = false;
+            currentPreRunTime = 0;
+
             if (currentJoystickPosition.y < 0 && !isSliding) 
             {
                 isSliding = true;

@@ -16,7 +16,7 @@ public class Bullet : MonoBehaviour
     [Header("Base Damage")]
     [SerializeField] private int baseDamage;
 
-    [Header("Collisions")]
+    [Header("Colliders")]
     [SerializeField] private LayerMask collisionMask;
     [SerializeField] private GameData.Side side;
     [SerializeField] private GameData.WeaponType weaponType;
@@ -75,7 +75,6 @@ public class Bullet : MonoBehaviour
             }
             else DestroyBullet();
         }
-        
     }
 
 
