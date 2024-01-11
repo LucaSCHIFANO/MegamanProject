@@ -84,7 +84,7 @@ public class MegamanController : Entity, IBulletEmiter
         animator = GetComponent<Animator>();
 
         SetCurrentCollider(false);
-        defaultContactOffset = Physics2D.defaultContactOffset;
+        defaultContactOffset = Physics2D.defaultContactOffset *2;
     }
 
     void Start()
