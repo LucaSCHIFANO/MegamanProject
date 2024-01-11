@@ -10,6 +10,7 @@ public class MegamanController : Entity, IBulletEmiter
     [SerializeField] private BoxCollider2D boxCollider;
     [SerializeField] private BoxCollider2D slideBoxCollider;
     private BoxCollider2D currentBoxCollider;
+    private float defaultContactOffset;
     private Rigidbody2D rb;
     private Animator animator;
 
@@ -83,6 +84,7 @@ public class MegamanController : Entity, IBulletEmiter
         animator = GetComponent<Animator>();
 
         SetCurrentCollider(false);
+        defaultContactOffset = Physics2D.defaultContactOffset;
     }
 
     void Start()
@@ -128,7 +130,9 @@ public class MegamanController : Entity, IBulletEmiter
     {
        // if(currentBoxCollider == null) return false;
 
-        RaycastHit2D raycastHit = Physics2D.BoxCast(currentBoxCollider.bounds.center, currentBoxCollider.bounds.size, 0f, Vector2.down, extraHeightBelow, ground);
+        RaycastHit2D raycastHit = Physics2D.BoxCast(currentBoxCollider.bounds.center,
+            currentBoxCollider.bounds.size + new Vector3(defaultContactOffset, 0, 0), 0f,
+            Vector2.down, extraHeightBelow, ground);
 
         if (raycastHit.collider != null)
         {
@@ -142,7 +146,9 @@ public class MegamanController : Entity, IBulletEmiter
     {
        // if (currentBoxCollider == null) return false;
 
-        RaycastHit2D raycastHit = Physics2D.BoxCast(currentBoxCollider.bounds.center, currentBoxCollider.bounds.size, 0f, Vector2.up, extraHeightAbove, ground);
+        RaycastHit2D raycastHit = Physics2D.BoxCast(currentBoxCollider.bounds.center,
+            currentBoxCollider.bounds.size + new Vector3(defaultContactOffset, 0, 0), 0f,
+            Vector2.up, extraHeightAbove, ground);
 
         if (raycastHit.collider != null)
         {
@@ -367,13 +373,13 @@ public class MegamanController : Entity, IBulletEmiter
     {
         if (DebugDebugCollisionCheckCheck && currentBoxCollider != null)
         {
-            Debug.DrawRay(currentBoxCollider.bounds.center + new Vector3(currentBoxCollider.bounds.extents.x, -currentBoxCollider.bounds.extents.y), Vector2.down * (extraHeightBelow), Color.red);
-            Debug.DrawRay(currentBoxCollider.bounds.center - new Vector3(currentBoxCollider.bounds.extents.x, currentBoxCollider.bounds.extents.y), Vector2.down * (extraHeightBelow), Color.red);
-            Debug.DrawRay(currentBoxCollider.bounds.center - new Vector3(currentBoxCollider.bounds.extents.x, currentBoxCollider.bounds.extents.y + extraHeightBelow), Vector2.right * (currentBoxCollider.bounds.extents.x) * 2, Color.red);
+            Debug.DrawRay(currentBoxCollider.bounds.center + new Vector3(currentBoxCollider.bounds.extents.x + defaultContactOffset, -currentBoxCollider.bounds.extents.y), Vector2.down * (extraHeightBelow), Color.red);
+            Debug.DrawRay(currentBoxCollider.bounds.center - new Vector3(currentBoxCollider.bounds.extents.x + defaultContactOffset, currentBoxCollider.bounds.extents.y), Vector2.down * (extraHeightBelow), Color.red);
+            Debug.DrawRay(currentBoxCollider.bounds.center - new Vector3(currentBoxCollider.bounds.extents.x + defaultContactOffset, currentBoxCollider.bounds.extents.y + extraHeightBelow), Vector2.right * (currentBoxCollider.bounds.extents.x + defaultContactOffset) * 2, Color.red);
 
-            Debug.DrawRay(currentBoxCollider.bounds.center + new Vector3(currentBoxCollider.bounds.extents.x, currentBoxCollider.bounds.extents.y), Vector2.up * (extraHeightAbove), Color.red);
-            Debug.DrawRay(currentBoxCollider.bounds.center + new Vector3(-currentBoxCollider.bounds.extents.x, currentBoxCollider.bounds.extents.y), Vector2.up * (extraHeightAbove), Color.red);
-            Debug.DrawRay(currentBoxCollider.bounds.center + new Vector3(-currentBoxCollider.bounds.extents.x, currentBoxCollider.bounds.extents.y + extraHeightAbove), Vector2.right * (currentBoxCollider.bounds.extents.x) * 2, Color.red);
+            Debug.DrawRay(currentBoxCollider.bounds.center + new Vector3(currentBoxCollider.bounds.extents.x + defaultContactOffset, currentBoxCollider.bounds.extents.y), Vector2.up * (extraHeightAbove), Color.red);
+            Debug.DrawRay(currentBoxCollider.bounds.center + new Vector3(-currentBoxCollider.bounds.extents.x - defaultContactOffset, currentBoxCollider.bounds.extents.y), Vector2.up * (extraHeightAbove), Color.red);
+            Debug.DrawRay(currentBoxCollider.bounds.center + new Vector3(-currentBoxCollider.bounds.extents.x - defaultContactOffset, currentBoxCollider.bounds.extents.y + extraHeightAbove), Vector2.right * (currentBoxCollider.bounds.extents.x + defaultContactOffset) * 2, Color.red);
 
         }
     }
