@@ -44,8 +44,8 @@ public class CameraMovement : MonoBehaviour
         if(target == null) return;
 
         if (currentRoom != null) {
-            var htXpos = Mathf.Clamp(target.position.x, currentRoom.BottomLeftLimit.x + cameraSize.x / 2, currentRoom.TopRightLimit.x - cameraSize.x / 2);
-            var htYpos = Mathf.Clamp(target.position.y, currentRoom.BottomLeftLimit.y + cameraSize.y / 2, currentRoom.TopRightLimit.y - cameraSize.y / 2);
+            var htXpos = Mathf.Clamp(target.position.x, currentRoom.WorldBottomLeftLimit.x + cameraSize.x / 2, currentRoom.WorldTopRightLimit.x - cameraSize.x / 2);
+            var htYpos = Mathf.Clamp(target.position.y, currentRoom.WorldBottomLeftLimit.y + cameraSize.y / 2, currentRoom.WorldTopRightLimit.y - cameraSize.y / 2);
             hiddenTarget = new Vector3(htXpos, htYpos, 0);
         }
         else hiddenTarget = target.position;
@@ -59,8 +59,8 @@ public class CameraMovement : MonoBehaviour
         currentRoom?.SetRoomActive(false);
         currentRoom = newRoom;
         
-        var htXpos = Mathf.Clamp(target.position.x, currentRoom.BottomLeftLimit.x + cameraSize.x / 2, currentRoom.TopRightLimit.x - cameraSize.x / 2);
-        var htYpos = Mathf.Clamp(target.position.y, currentRoom.BottomLeftLimit.y + cameraSize.y / 2, currentRoom.TopRightLimit.y - cameraSize.y / 2);
+        var htXpos = Mathf.Clamp(target.position.x, currentRoom.WorldBottomLeftLimit.x + cameraSize.x / 2, currentRoom.WorldTopRightLimit.x - cameraSize.x / 2);
+        var htYpos = Mathf.Clamp(target.position.y, currentRoom.WorldBottomLeftLimit.y + cameraSize.y / 2, currentRoom.WorldTopRightLimit.y - cameraSize.y / 2);
         hiddenTarget = new Vector3(htXpos, htYpos, 0);
 
         if (hasTransition) StartCoroutine(RoomTransition());

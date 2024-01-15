@@ -10,9 +10,12 @@ public class MegamanController : Entity, IBulletEmiter
     [SerializeField] private BoxCollider2D boxCollider;
     [SerializeField] private BoxCollider2D slideBoxCollider;
     private BoxCollider2D currentBoxCollider;
+
+    [SerializeField] float defaulContactOffsetMultiplicator;
     private float defaultContactOffset;
     private Rigidbody2D rb;
     private Animator animator;
+
 
     [Header("Movement")]
     [SerializeField] private float speed;
@@ -24,9 +27,11 @@ public class MegamanController : Entity, IBulletEmiter
     [SerializeField] private float preRunTime;
     private float currentPreRunTime;
 
+
     [Header("RoomTransition")]
     private Vector2 roomTransitionTarget;
     private float transitionSpeed;
+
 
     [Header("Jump")]
     [SerializeField] private float jumpForce;
@@ -65,11 +70,19 @@ public class MegamanController : Entity, IBulletEmiter
     private bool isSlideRight;
 
 
+    [Header("Ladder")]
+    private Ladder closeLadder;
+    private bool isCloseToLadder;
+    private bool isClimbing;
+    private float ladderBoundsOffset;
+    private float ladderExitPositionOffset;
+
+
+
     [Header("Animation")]
     private bool isRunningAnim;
     private bool isShootingAnim;
     private bool lastShootingAnim;
-
 
     enum MegamanState
     {
@@ -85,6 +98,9 @@ public class MegamanController : Entity, IBulletEmiter
 
         SetCurrentCollider(false);
         defaultContactOffset = Physics2D.defaultContactOffset *2;
+
+        ladderBoundsOffset = currentBoxCollider.size.y / 3f;
+        ladderExitPositionOffset = currentBoxCollider.size.y / 2f;
     }
 
     void Start()
@@ -96,7 +112,8 @@ public class MegamanController : Entity, IBulletEmiter
     private void FixedUpdate()
     {
         if (state == MegamanState.CanMove) 
-        { 
+        {
+            Climb();
             Movement();
         }
     }
@@ -131,7 +148,7 @@ public class MegamanController : Entity, IBulletEmiter
        // if(currentBoxCollider == null) return false;
 
         RaycastHit2D raycastHit = Physics2D.BoxCast(currentBoxCollider.bounds.center,
-            currentBoxCollider.bounds.size + new Vector3(defaultContactOffset, 0, 0), 0f,
+            currentBoxCollider.bounds.size + new Vector3(defaultContactOffset * defaulContactOffsetMultiplicator, 0, 0), 0f,
             Vector2.down, extraHeightBelow, ground);
 
         if (raycastHit.collider != null)
@@ -147,7 +164,7 @@ public class MegamanController : Entity, IBulletEmiter
        // if (currentBoxCollider == null) return false;
 
         RaycastHit2D raycastHit = Physics2D.BoxCast(currentBoxCollider.bounds.center,
-            currentBoxCollider.bounds.size + new Vector3(defaultContactOffset, 0, 0), 0f,
+            currentBoxCollider.bounds.size, 0f,
             Vector2.up, extraHeightAbove, ground);
 
         if (raycastHit.collider != null)
@@ -156,14 +173,6 @@ public class MegamanController : Entity, IBulletEmiter
         }
 
         return false;
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.tag == "RoomTransition")
-        {
-            StartCoroutine(RoomTransition(collision.GetComponent<RoomTransition>()));
-        }
     }
 
     private void SetCurrentCollider(bool isSliding)
@@ -181,6 +190,29 @@ public class MegamanController : Entity, IBulletEmiter
         }
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("RoomTransition"))
+        {
+            StartCoroutine(RoomTransition(collision.GetComponent<RoomTransition>()));
+        }
+        else if (collision.CompareTag("Ladder"))
+        {
+            isCloseToLadder = true;
+            closeLadder = collision.gameObject.GetComponent<Ladder>();
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Ladder"))
+        {
+            isCloseToLadder = false;
+            closeLadder = null;
+        }
+    }
+
+
     #endregion
 
 
@@ -193,7 +225,7 @@ public class MegamanController : Entity, IBulletEmiter
         switch (state)
         {
             case MegamanState.CanMove:
-                rb.gravityScale = gravityFall;
+                if(!isClimbing) rb.gravityScale = gravityFall;
                 if (currentJoystickPosition == Vector2.zero) joystickReset = true;
                 break;
 
@@ -209,9 +241,67 @@ public class MegamanController : Entity, IBulletEmiter
 
     }
 
+    private void Climb()
+    {
+        float joystickY = currentJoystickPosition.y;
+        if (joystickY != 0) joystickY = Mathf.Sign(joystickY);
+
+
+        float verticalMovement = joystickY * speed;
+
+
+        if (isClimbing)
+        {
+            rb.velocity = new Vector2(0, verticalMovement);
+
+            if (joystickY > 0 && transform.position.y > closeLadder.TopHandler.position.y + ladderBoundsOffset)
+            {
+                transform.position = closeLadder.TopHandler.position + new Vector3(0, ladderExitPositionOffset, 0);
+            }
+            else if(transform.position.y < closeLadder.BotHandler.transform.position.y - ladderBoundsOffset) 
+            {
+                transform.position = closeLadder.BotHandler.position + new Vector3(0, -ladderExitPositionOffset, 0);
+            }
+            else if (joystickY >= 0 || !IsGrounded() || (transform.position.y >= closeLadder.transform.position.y))
+            {
+                return;
+            }
+
+            rb.velocity = Vector2.zero;
+            StopClimbing();
+        }
+        else
+        {
+            if (joystickY != 0 && isCloseToLadder)
+            {
+                if (joystickY > 0 && transform.position.y > closeLadder.TopHandler.position.y ||
+                    (joystickY < 0 && IsGrounded() && (transform.position.y < closeLadder.TopHandler.position.y))) return;
+
+                isClimbing = true;
+                rb.gravityScale = 0f;
+                rb.velocity = Vector2.zero;
+
+                rb.bodyType = RigidbodyType2D.Kinematic;
+                var positionOnLadder = transform.position.y;
+                if (transform.position.y > closeLadder.TopHandler.position.y) positionOnLadder -= ladderExitPositionOffset;
+                else if (transform.position.y < closeLadder.BotHandler.position.y) positionOnLadder += ladderExitPositionOffset;
+                transform.position = new Vector3(closeLadder.transform.position.x, positionOnLadder, 0);
+              
+            
+            }
+        }
+    }
+
+    private void StopClimbing()
+    {
+        isClimbing = false;
+        rb.gravityScale = gravityFall;
+        rb.bodyType = RigidbodyType2D.Dynamic;
+    }
+
     private void Movement()
     {
-        if (isSliding) return;
+        if (isSliding || isClimbing) return;
 
         float joystickX = currentJoystickPosition.x;
         if (joystickX != 0) joystickX = Mathf.Sign(joystickX);
@@ -241,6 +331,8 @@ public class MegamanController : Entity, IBulletEmiter
 
     private void Jump()
     {
+        if(isClimbing) return;
+
         if (isJumping)
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
@@ -256,7 +348,7 @@ public class MegamanController : Entity, IBulletEmiter
 
     private void Shoot()
     {
-        if(isSliding) return;
+        if(isSliding || isClimbing) return;
 
         var bulletSpawnPoint = transform.position;
         var bulletDirection = Vector2.left;
@@ -326,6 +418,7 @@ public class MegamanController : Entity, IBulletEmiter
 
 
 
+
     #endregion
 
     
@@ -347,11 +440,11 @@ public class MegamanController : Entity, IBulletEmiter
             case Room.TransitionSide.Right:
                 roomTransitionTarget = transform.position + new Vector3(GameData.roomColliderThickness * GameData.roomTransitionDistance, 0, 0);
                 break;
-            case Room.TransitionSide.Top:
-                roomTransitionTarget = transform.position + new Vector3(0, GameData.roomColliderThickness * GameData.roomTransitionDistance, 0);
-                break;
             case Room.TransitionSide.Bottom:
                 roomTransitionTarget = transform.position + new Vector3(0, -GameData.roomColliderThickness * GameData.roomTransitionDistance, 0);
+                break;
+            case Room.TransitionSide.Top:
+                roomTransitionTarget = transform.position + new Vector3(0, GameData.roomColliderThickness * GameData.roomTransitionDistance, 0);
                 break;
             default:
                 break;
@@ -373,13 +466,13 @@ public class MegamanController : Entity, IBulletEmiter
     {
         if (DebugDebugCollisionCheckCheck && currentBoxCollider != null)
         {
-            Debug.DrawRay(currentBoxCollider.bounds.center + new Vector3(currentBoxCollider.bounds.extents.x + defaultContactOffset, -currentBoxCollider.bounds.extents.y), Vector2.down * (extraHeightBelow), Color.red);
-            Debug.DrawRay(currentBoxCollider.bounds.center - new Vector3(currentBoxCollider.bounds.extents.x + defaultContactOffset, currentBoxCollider.bounds.extents.y), Vector2.down * (extraHeightBelow), Color.red);
-            Debug.DrawRay(currentBoxCollider.bounds.center - new Vector3(currentBoxCollider.bounds.extents.x + defaultContactOffset, currentBoxCollider.bounds.extents.y + extraHeightBelow), Vector2.right * (currentBoxCollider.bounds.extents.x + defaultContactOffset) * 2, Color.red);
+            Debug.DrawRay(currentBoxCollider.bounds.center + new Vector3(currentBoxCollider.bounds.extents.x + defaultContactOffset * defaulContactOffsetMultiplicator, -currentBoxCollider.bounds.extents.y), Vector2.down * (extraHeightBelow), Color.red);
+            Debug.DrawRay(currentBoxCollider.bounds.center - new Vector3(currentBoxCollider.bounds.extents.x + defaultContactOffset * defaulContactOffsetMultiplicator, currentBoxCollider.bounds.extents.y), Vector2.down * (extraHeightBelow), Color.red);
+            Debug.DrawRay(currentBoxCollider.bounds.center - new Vector3(currentBoxCollider.bounds.extents.x + defaultContactOffset * defaulContactOffsetMultiplicator, currentBoxCollider.bounds.extents.y + extraHeightBelow), Vector2.right * (currentBoxCollider.bounds.extents.x + defaultContactOffset * defaulContactOffsetMultiplicator) * 2, Color.red);
 
-            Debug.DrawRay(currentBoxCollider.bounds.center + new Vector3(currentBoxCollider.bounds.extents.x + defaultContactOffset, currentBoxCollider.bounds.extents.y), Vector2.up * (extraHeightAbove), Color.red);
-            Debug.DrawRay(currentBoxCollider.bounds.center + new Vector3(-currentBoxCollider.bounds.extents.x - defaultContactOffset, currentBoxCollider.bounds.extents.y), Vector2.up * (extraHeightAbove), Color.red);
-            Debug.DrawRay(currentBoxCollider.bounds.center + new Vector3(-currentBoxCollider.bounds.extents.x - defaultContactOffset, currentBoxCollider.bounds.extents.y + extraHeightAbove), Vector2.right * (currentBoxCollider.bounds.extents.x + defaultContactOffset) * 2, Color.red);
+            Debug.DrawRay(currentBoxCollider.bounds.center + new Vector3(currentBoxCollider.bounds.extents.x, currentBoxCollider.bounds.extents.y), Vector2.up * (extraHeightAbove), Color.red);
+            Debug.DrawRay(currentBoxCollider.bounds.center + new Vector3(-currentBoxCollider.bounds.extents.x, currentBoxCollider.bounds.extents.y), Vector2.up * (extraHeightAbove), Color.red);
+            Debug.DrawRay(currentBoxCollider.bounds.center + new Vector3(-currentBoxCollider.bounds.extents.x, currentBoxCollider.bounds.extents.y + extraHeightAbove), Vector2.right * (currentBoxCollider.bounds.extents.x) * 2, Color.red);
 
         }
     }
@@ -392,44 +485,52 @@ public class MegamanController : Entity, IBulletEmiter
 
     private void UpdateAnimation()
     {
-        if (currentJoystickPosition.x < 0f) sr.flipX = false;
-        else if (currentJoystickPosition.x > 0f) sr.flipX = true;
-
         string animName = "";
-
-        if (isCurrentlyGrounded)
+        if (isClimbing)
         {
-            if(currentPreRunTime > 0)
-            {
-                animName = "Megaman_PreRun";
-            }
-            else if (Mathf.Abs(rb.velocity.x) > 0.1f)
-            {
-                if (isSliding)
-                {
-                    isRunningAnim = false;
-                    animName = "Megaman_Slide";
-                }else if(currentPreRunTime <= 0f) animName = "Megaman_Run";
-            }
-            else
-            {
-                animName = "Megaman_Idle";
-                isRunningAnim = false;
-            }
+            if (transform.position.y > closeLadder.TopHandler.position.y) animName = "Megaman_Climb_TopLadder";
+            else animName = "Megaman_Climb";
         }
         else
         {
-            isRunningAnim = false;
-            animName = "Megaman_Jump";
-        }
+            if (currentJoystickPosition.x < 0f) sr.flipX = false;
+            else if (currentJoystickPosition.x > 0f) sr.flipX = true;
 
-        if (currentShootAnimDuration > 0f)
-        {
-            animName += "_Shoot";
-            currentShootAnimDuration -= Time.deltaTime;
-            isShootingAnim = true;
+            if (isCurrentlyGrounded)
+            {
+                if (currentPreRunTime > 0)
+                {
+                    animName = "Megaman_PreRun";
+                }
+                else if (Mathf.Abs(rb.velocity.x) > 0.1f)
+                {
+                    if (isSliding)
+                    {
+                        isRunningAnim = false;
+                        animName = "Megaman_Slide";
+                    }
+                    else if (currentPreRunTime <= 0f) animName = "Megaman_Run";
+                }
+                else
+                {
+                    animName = "Megaman_Idle";
+                    isRunningAnim = false;
+                }
+            }
+            else
+            {
+                isRunningAnim = false;
+                animName = "Megaman_Jump";
+            }
+
+            if (currentShootAnimDuration > 0f)
+            {
+                animName += "_Shoot";
+                currentShootAnimDuration -= Time.deltaTime;
+                isShootingAnim = true;
+            }
+            else isShootingAnim = false;
         }
-        else isShootingAnim = false;
 
         if (animName != "")
         {
@@ -440,6 +541,8 @@ public class MegamanController : Entity, IBulletEmiter
             }
             else
             {
+                if(isClimbing && Mathf.Abs(rb.velocity.y) == 0) animator.speed = 0;
+                else animator.speed = 1;
                 animator.Play(animName);
             }
         }
@@ -455,16 +558,17 @@ public class MegamanController : Entity, IBulletEmiter
     {
         currentJoystickPosition = context.ReadValue<Vector2>();
 
-        if (currentJoystickPosition == Vector2.zero && state == MegamanState.CanMove) joystickReset = true;
+        if (currentJoystickPosition.x == 0 && state == MegamanState.CanMove && isCurrentlyGrounded) joystickReset = true;
     }
 
     public void JumpInput(InputAction.CallbackContext context)
     {
         if (state != MegamanState.CanMove) return;
 
-        if (context.performed && !IsTouchingRoof())
+        if (context.performed)
         {
-            if (!isCurrentlyGrounded) return;
+            if(isClimbing) StopClimbing();
+            if (!isCurrentlyGrounded || IsTouchingRoof()) return;
 
             joystickReset = false;
             currentPreRunTime = 0;

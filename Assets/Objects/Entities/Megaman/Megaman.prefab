@@ -393,6 +393,7 @@ MonoBehaviour:
   sr: {fileID: 8066897895788514397}
   boxCollider: {fileID: 7328245005353537571}
   slideBoxCollider: {fileID: 4774328286403552923}
+  defaulContactOffsetMultiplicator: 0
   speed: 0.75
   preRunTime: 0.1
   jumpForce: 1.5

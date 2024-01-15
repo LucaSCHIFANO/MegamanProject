@@ -5,9 +5,17 @@ using static Room;
 
 public class Room : MonoBehaviour
 {
+    public const float gridX = 2.4f;
+    public const float gridY = 1.8f;
+
+    [Header("Room Postition")]
+    [SerializeField] private Vector2Int position;
+
     [Header("Room Limits")]
-    [SerializeField] private Vector3 bottomLeftLimit = new Vector3(-1.2f, -0.9f, 0);
-    [SerializeField] private Vector3 topRightLimit = new Vector3(1.2f, 0.9f, 0);
+    [SerializeField] private Vector2Int bottomLeftLimit;
+    [SerializeField] private Vector2Int topRightLimit;
+    [SerializeField, HideInInspector] private Vector3 worldBottomLeftLimit;
+    [SerializeField, HideInInspector] private Vector3 worldTopRightLimit;
     private bool isRoomActive;
 
     [Header("Transitions")]
@@ -23,18 +31,35 @@ public class Room : MonoBehaviour
         None,
         Left,
         Right,
-        Top,
-        Bottom
+        Bottom,
+        Top
     }
     
     [Header("Debug")]
     [SerializeField] private Color handlesColor;
     [SerializeField] private float lineThickness = 3;
 
-    public Vector3 BottomLeftLimit { get => bottomLeftLimit + transform.position;  }
-    public Vector3 TopRightLimit { get => topRightLimit + transform.position;  }
+    #region GetSet
+
+    //Position (Room Ref)
+    public Vector3 GameObjectPosition { get => transform.position; set => transform.position = value; }
+    public Vector2Int RoomPosition { get => position; set => position = value; }
+    public Vector2Int RoomBottomLeftLimit { get => bottomLeftLimit; set => bottomLeftLimit = value; }
+    public Vector2Int RoomTopRightLimit { get => topRightLimit; set => topRightLimit = value; }
+
+    //Position (Local Ref)
+    public Vector2 LocalBottomLeftLimit { get => worldBottomLeftLimit; set => worldBottomLeftLimit = value; }
+    public Vector2 LocalTopRightLimit { get => worldTopRightLimit; set => worldTopRightLimit = value; }
+
+    //Position (World Ref)
+    public Vector2 WorldBottomLeftLimit { get => worldBottomLeftLimit + transform.position;}
+    public Vector2 WorldTopRightLimit { get => worldTopRightLimit + transform.position;}
+
+    //Debug
     public Color HandlesColor { get => handlesColor; }
     public float LineThickness { get => lineThickness; }
+
+    #endregion
 
     private void Awake()
     {
@@ -45,41 +70,41 @@ public class Room : MonoBehaviour
         for (int i = 0; i < transitions.Count; i++)
         {
             if (transitions[i].transitionSide != TransitionSide.None) SetTransitionHitbox(transitions[i]);  
-
         }
     }
 
     void SetTransitionHitbox(Transition transition)
     {
-        Vector3 centralTransitionPoint = transform.position;
+        Vector3 centralTransitionPoint = Vector3.zero;
         float height = 0.1f;
         float witdh = 0.1f;
 
         switch (transition.transitionSide)
         {
             case TransitionSide.Left:
-                height = topRightLimit.y - bottomLeftLimit.y;
-                centralTransitionPoint += new Vector3(bottomLeftLimit.x, bottomLeftLimit.y + height / 2);
+                height = (worldTopRightLimit.y - worldBottomLeftLimit.y);
+                centralTransitionPoint += new Vector3(worldBottomLeftLimit.x, (worldTopRightLimit.y + worldBottomLeftLimit.y) / 2);
                 break;
 
             case TransitionSide.Right:
-                height = topRightLimit.y - bottomLeftLimit.y;
-                centralTransitionPoint += new Vector3(topRightLimit.x, topRightLimit.y - height / 2);
-                break;
-
-            case TransitionSide.Top:
-                witdh = topRightLimit.x - bottomLeftLimit.x;
-                centralTransitionPoint += new Vector3(topRightLimit.x - witdh / 2, topRightLimit.y);
+                height = (worldTopRightLimit.y - worldBottomLeftLimit.y);
+                centralTransitionPoint += new Vector3(worldTopRightLimit.x, (worldTopRightLimit.y + worldBottomLeftLimit.y) / 2);
                 break;
 
             case TransitionSide.Bottom:
-                witdh = topRightLimit.x - bottomLeftLimit.x;
-                centralTransitionPoint += new Vector3(bottomLeftLimit.x + witdh / 2, bottomLeftLimit.y);
+                witdh = worldTopRightLimit.x - worldBottomLeftLimit.x;
+                centralTransitionPoint += new Vector3((worldTopRightLimit.x + worldBottomLeftLimit.x) / 2, worldBottomLeftLimit.y);
+                break;
+
+            case TransitionSide.Top:
+                witdh = worldTopRightLimit.x - worldBottomLeftLimit.x;
+                centralTransitionPoint += new Vector3((worldTopRightLimit.x + worldBottomLeftLimit.x) / 2, worldTopRightLimit.y);
                 break;
 
         }
 
-        var transitionGO = Instantiate(roomTransitionPrefab, centralTransitionPoint, transform.rotation, transform);
+        var transitionGO = Instantiate(roomTransitionPrefab, transform);
+        transitionGO.transform.localPosition = centralTransitionPoint;
         BoxCollider2D transitionCollider = transitionGO.GetComponent<BoxCollider2D>();
 
         transitionGO.SetData(transition.transitionSide, transition.newRoomID);
@@ -98,6 +123,23 @@ public class Room : MonoBehaviour
           item.SetRoomActive(active);
         }
         
+    }
+
+    public Vector3 roomPositionToWorldPosition(Vector2Int position)
+    {
+        return new Vector3(gridX * position.x, gridY * position.y, 0);
+    }
+
+    public Vector3 roomBoundPositionToWorldPosition(Vector2Int position, bool isBottomLeft)
+    {
+        if (isBottomLeft) return new Vector3(-gridX/2 + (gridX*position.x), -gridY / 2 + (gridY * position.y), 0);
+        else return new Vector3(gridX / 2 + (gridX * position.x), gridY / 2 + (gridY * position.y), 0);
+    }
+
+    public Vector3 roomBoundPositionToWorldPosition(Vector3 position, bool isBottomLeft)
+    {
+        if (isBottomLeft) return new Vector3(-gridX / 2 + (gridX * position.x), -gridY / 2 + (gridY * position.y), 0);
+        else return new Vector3(gridX / 2 + (gridX * position.x), gridY / 2 + (gridY * position.y), 0);
     }
 }
 
