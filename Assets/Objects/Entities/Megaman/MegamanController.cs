@@ -252,6 +252,11 @@ public class MegamanController : Entity, IBulletEmiter
 
         if (isClimbing)
         {
+            if (isShootingAnim) 
+            { 
+                rb.velocity = Vector2.zero;
+                return; 
+            }
             rb.velocity = new Vector2(0, verticalMovement);
 
             if (joystickY > 0 && transform.position.y > closeLadder.TopHandler.position.y + ladderBoundsOffset)
@@ -280,6 +285,7 @@ public class MegamanController : Entity, IBulletEmiter
                 isClimbing = true;
                 rb.gravityScale = 0f;
                 rb.velocity = Vector2.zero;
+                currentShootAnimDuration = 0f;
 
                 rb.bodyType = RigidbodyType2D.Kinematic;
                 var positionOnLadder = transform.position.y;
@@ -348,7 +354,12 @@ public class MegamanController : Entity, IBulletEmiter
 
     private void Shoot()
     {
-        if(isSliding || isClimbing) return;
+        if(isSliding) return;
+        else if (isClimbing)
+        {
+            if (currentJoystickPosition.x < 0f) sr.flipX = false;
+            else if (currentJoystickPosition.x > 0f) sr.flipX = true;
+        }
 
         var bulletSpawnPoint = transform.position;
         var bulletDirection = Vector2.left;
@@ -522,22 +533,23 @@ public class MegamanController : Entity, IBulletEmiter
                 isRunningAnim = false;
                 animName = "Megaman_Jump";
             }
-
-            if (currentShootAnimDuration > 0f)
-            {
-                animName += "_Shoot";
-                currentShootAnimDuration -= Time.deltaTime;
-                isShootingAnim = true;
-            }
-            else isShootingAnim = false;
         }
+
+        if (currentShootAnimDuration > 0f)
+        {
+            animName += "_Shoot";
+            currentShootAnimDuration -= Time.deltaTime;
+            isShootingAnim = true;
+        }
+        else isShootingAnim = false;
 
         if (animName != "")
         {
             if (lastShootingAnim != isShootingAnim)
             {
                 lastShootingAnim = isShootingAnim;
-                animator.Play(animName, 0, animator.GetCurrentAnimatorStateInfo(0).normalizedTime % 1);
+                if(isClimbing) animator.Play(animName);
+                else animator.Play(animName, 0, animator.GetCurrentAnimatorStateInfo(0).normalizedTime % 1);
             }
             else
             {
