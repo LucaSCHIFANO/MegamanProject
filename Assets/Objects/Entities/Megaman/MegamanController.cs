@@ -31,6 +31,7 @@ public class MegamanController : Entity, IBulletEmiter
     [Header("RoomTransition")]
     private Vector2 roomTransitionTarget;
     private float transitionSpeed;
+    private RoomTransition currentRoomTransition;
 
 
     [Header("Jump")]
@@ -83,6 +84,8 @@ public class MegamanController : Entity, IBulletEmiter
     private bool isRunningAnim;
     private bool isShootingAnim;
     private bool lastShootingAnim;
+
+    public bool IsClimbing { get => isClimbing;}
 
     enum MegamanState
     {
@@ -194,7 +197,11 @@ public class MegamanController : Entity, IBulletEmiter
     {
         if (collision.CompareTag("RoomTransition"))
         {
-            StartCoroutine(RoomTransition(collision.GetComponent<RoomTransition>()));
+            var roomTransitionComponent = collision.GetComponent<RoomTransition>();
+
+            if (!roomTransitionComponent.OnlyOnLadder || IsClimbing)
+                StartCoroutine(RoomTransition(collision.GetComponent<RoomTransition>()));
+            else currentRoomTransition = roomTransitionComponent;
         }
         else if (collision.CompareTag("Ladder"))
         {
@@ -209,6 +216,10 @@ public class MegamanController : Entity, IBulletEmiter
         {
             isCloseToLadder = false;
             closeLadder = null;
+        }
+        else if (collision.CompareTag("RoomTransition"))
+        {
+            currentRoomTransition = null;
         }
     }
 
@@ -239,70 +250,6 @@ public class MegamanController : Entity, IBulletEmiter
                 break;
         }
 
-    }
-
-    private void Climb()
-    {
-        float joystickY = currentJoystickPosition.y;
-        if (joystickY != 0) joystickY = Mathf.Sign(joystickY);
-
-
-        float verticalMovement = joystickY * speed;
-
-
-        if (isClimbing)
-        {
-            if (isShootingAnim) 
-            { 
-                rb.velocity = Vector2.zero;
-                return; 
-            }
-            rb.velocity = new Vector2(0, verticalMovement);
-
-            if (joystickY > 0 && transform.position.y > closeLadder.TopHandler.position.y + ladderBoundsOffset)
-            {
-                transform.position = closeLadder.TopHandler.position + new Vector3(0, ladderExitPositionOffset, 0);
-            }
-            else if(transform.position.y < closeLadder.BotHandler.transform.position.y - ladderBoundsOffset) 
-            {
-                transform.position = closeLadder.BotHandler.position + new Vector3(0, -ladderExitPositionOffset, 0);
-            }
-            else if (joystickY >= 0 || !IsGrounded() || (transform.position.y >= closeLadder.transform.position.y))
-            {
-                return;
-            }
-
-            rb.velocity = Vector2.zero;
-            StopClimbing();
-        }
-        else
-        {
-            if (joystickY != 0 && isCloseToLadder)
-            {
-                if (joystickY > 0 && transform.position.y > closeLadder.TopHandler.position.y ||
-                    (joystickY < 0 && IsGrounded() && (transform.position.y < closeLadder.TopHandler.position.y))) return;
-
-                isClimbing = true;
-                rb.gravityScale = 0f;
-                rb.velocity = Vector2.zero;
-                currentShootAnimDuration = 0f;
-
-                rb.bodyType = RigidbodyType2D.Kinematic;
-                var positionOnLadder = transform.position.y;
-                if (transform.position.y > closeLadder.TopHandler.position.y) positionOnLadder -= ladderExitPositionOffset;
-                else if (transform.position.y < closeLadder.BotHandler.position.y) positionOnLadder += ladderExitPositionOffset;
-                transform.position = new Vector3(closeLadder.transform.position.x, positionOnLadder, 0);
-              
-            
-            }
-        }
-    }
-
-    private void StopClimbing()
-    {
-        isClimbing = false;
-        rb.gravityScale = gravityFall;
-        rb.bodyType = RigidbodyType2D.Dynamic;
     }
 
     private void Movement()
@@ -426,13 +373,83 @@ public class MegamanController : Entity, IBulletEmiter
 
     }
 
+    private void Climb()
+    {
+        float joystickY = currentJoystickPosition.y;
+        if (joystickY != 0) joystickY = Mathf.Sign(joystickY);
 
+
+        float verticalMovement = joystickY * speed;
+
+
+        if (isClimbing)
+        {
+            if (isShootingAnim)
+            {
+                rb.velocity = Vector2.zero;
+                return;
+            }
+            rb.velocity = new Vector2(0, verticalMovement);
+
+            if (joystickY > 0 && transform.position.y > closeLadder.TopHandler.position.y + ladderBoundsOffset)
+            {
+                transform.position = closeLadder.TopHandler.position + new Vector3(0, ladderExitPositionOffset, 0);
+            }
+            else if (transform.position.y < closeLadder.BotHandler.transform.position.y - ladderBoundsOffset)
+            {
+                transform.position = closeLadder.BotHandler.position + new Vector3(0, -ladderExitPositionOffset, 0);
+            }
+            else if (joystickY >= 0 || !IsGrounded() || (transform.position.y >= closeLadder.transform.position.y))
+            {
+                return;
+            }
+
+            rb.velocity = Vector2.zero;
+            StopClimbing();
+        }
+        else
+        {
+            
+            if (joystickY != 0 && isCloseToLadder)
+            {
+                if (joystickY > 0 && transform.position.y > closeLadder.TopHandler.position.y ||
+                    (joystickY < 0 && IsGrounded() && (transform.position.y < closeLadder.TopHandler.position.y))) return;
+
+                isClimbing = true;
+                rb.gravityScale = 0f;
+                rb.velocity = Vector2.zero;
+                currentShootAnimDuration = 0f;
+
+                rb.bodyType = RigidbodyType2D.Kinematic;
+                var positionOnLadder = transform.position.y;
+                if (transform.position.y > closeLadder.TopHandler.position.y) positionOnLadder -= ladderExitPositionOffset;
+                else if (transform.position.y < closeLadder.BotHandler.position.y) positionOnLadder += ladderExitPositionOffset;
+                transform.position = new Vector3(closeLadder.transform.position.x, positionOnLadder, 0);
+
+                if (currentRoomTransition != null)
+                {
+                    animator.Play("Megaman_Climb");
+                    StartCoroutine(RoomTransition(currentRoomTransition));
+                    currentRoomTransition = null;
+                }
+
+
+            }
+        }
+    }
+
+    private void StopClimbing()
+    {
+        isClimbing = false;
+        rb.gravityScale = gravityFall;
+        rb.bodyType = RigidbodyType2D.Dynamic;
+    }
 
 
 
     #endregion
 
-    
+
     #region Room Transition
 
     private void MoveTo()

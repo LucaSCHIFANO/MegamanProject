@@ -85,7 +85,7 @@ public class Room : MonoBehaviour
         transitionGO.transform.position = GetColliderCentralPoint(transition);
         BoxCollider2D transitionCollider = transitionGO.GetComponent<BoxCollider2D>();
 
-        transitionGO.SetData(transition.transitionSide, transition.newRoomID);
+        transitionGO.SetData(transition.transitionSide, transition.newRoomID, transition.onlyOnLadder);
 
         transitionCollider.isTrigger = true;
         transitionCollider.size = GetColliderHeightWidth(transition);
@@ -173,7 +173,6 @@ public class Room : MonoBehaviour
 
         }
 
-        Debug.Log($"{-offset} , {offset} , {trueTransitionOffset}");
         return Mathf.Lerp(-offset , offset , trueTransitionOffset);
 
     }
@@ -218,7 +217,9 @@ public class Transition
     public TransitionSide transitionSide;
     public int newRoomID;
 
-    public bool isColliderReduced;
+    public bool onlyOnLadder = false;
+
+    public bool isColliderReduced = false;
 
     [Range(-1f, 1f)] public float offset = 0f;
     [Range(0.05f, 1)] public float size = 1f;
