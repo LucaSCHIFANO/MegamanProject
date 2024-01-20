@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static Room;
 
+
 public class Room : MonoBehaviour
 {
     public const float gridX = 2.4f;
@@ -36,7 +37,9 @@ public class Room : MonoBehaviour
     }
     
     [Header("Debug")]
-    [SerializeField] private Color handlesColor;
+    [SerializeField] private bool drawDebug;
+    [SerializeField] private Color handlesColor = Color.red;
+    [SerializeField] private Color handlesColliderColor = Color.green;
     [SerializeField] private float lineThickness = 3;
 
     #region GetSet
@@ -56,8 +59,11 @@ public class Room : MonoBehaviour
     public Vector2 WorldTopRightLimit { get => worldTopRightLimit + transform.position;}
 
     //Debug
+    public bool DrawDebug { get => drawDebug; set => drawDebug = value; }
     public Color HandlesColor { get => handlesColor; }
     public float LineThickness { get => lineThickness; }
+    public Color HandlesColliderColor { get => handlesColliderColor; }
+    [SerializeField, HideInInspector] public List<Transition> Transitions { get => transitions;}
 
     #endregion
 
@@ -75,46 +81,19 @@ public class Room : MonoBehaviour
 
     void SetTransitionHitbox(Transition transition)
     {
-        Vector3 centralTransitionPoint = Vector3.zero;
-        float height = 0.1f;
-        float witdh = 0.1f;
-
-        switch (transition.transitionSide)
-        {
-            case TransitionSide.Left:
-                height = (worldTopRightLimit.y - worldBottomLeftLimit.y);
-                centralTransitionPoint += new Vector3(worldBottomLeftLimit.x, (worldTopRightLimit.y + worldBottomLeftLimit.y) / 2);
-                break;
-
-            case TransitionSide.Right:
-                height = (worldTopRightLimit.y - worldBottomLeftLimit.y);
-                centralTransitionPoint += new Vector3(worldTopRightLimit.x, (worldTopRightLimit.y + worldBottomLeftLimit.y) / 2);
-                break;
-
-            case TransitionSide.Bottom:
-                witdh = worldTopRightLimit.x - worldBottomLeftLimit.x;
-                centralTransitionPoint += new Vector3((worldTopRightLimit.x + worldBottomLeftLimit.x) / 2, worldBottomLeftLimit.y);
-                break;
-
-            case TransitionSide.Top:
-                witdh = worldTopRightLimit.x - worldBottomLeftLimit.x;
-                centralTransitionPoint += new Vector3((worldTopRightLimit.x + worldBottomLeftLimit.x) / 2, worldTopRightLimit.y);
-                break;
-
-        }
-
         var transitionGO = Instantiate(roomTransitionPrefab, transform);
-        transitionGO.transform.localPosition = centralTransitionPoint;
+        transitionGO.transform.position = GetColliderCentralPoint(transition);
         BoxCollider2D transitionCollider = transitionGO.GetComponent<BoxCollider2D>();
 
         transitionGO.SetData(transition.transitionSide, transition.newRoomID);
 
         transitionCollider.isTrigger = true;
-        transitionCollider.size = new Vector2(witdh, height);
+        transitionCollider.size = GetColliderHeightWidth(transition);
         transitionCollider.enabled = false;
 
         roomTransitions.Add(transitionGO);
     }
+
     public void SetRoomActive(bool active)
     {
         isRoomActive = active;
@@ -141,6 +120,95 @@ public class Room : MonoBehaviour
         if (isBottomLeft) return new Vector3(-gridX / 2 + (gridX * position.x), -gridY / 2 + (gridY * position.y), 0);
         else return new Vector3(gridX / 2 + (gridX * position.x), gridY / 2 + (gridY * position.y), 0);
     }
+
+
+    public Vector3 GetColliderCentralPoint(Transition transition)
+    {
+        Vector3 centralTransitionPoint = Vector3.zero;
+        float offset = 0f;
+        
+        if(transition.isColliderReduced) offset = GetOffset(transition);
+
+        switch (transition.transitionSide)
+        {
+            case TransitionSide.Left:
+                centralTransitionPoint += new Vector3(worldBottomLeftLimit.x, (worldTopRightLimit.y + worldBottomLeftLimit.y) / 2 + offset);
+                break;
+
+            case TransitionSide.Right:
+                centralTransitionPoint += new Vector3(worldTopRightLimit.x, (worldTopRightLimit.y + worldBottomLeftLimit.y) / 2 + offset);
+                break;
+
+            case TransitionSide.Bottom:
+                centralTransitionPoint += new Vector3((worldTopRightLimit.x + worldBottomLeftLimit.x) / 2 + offset, worldBottomLeftLimit.y);
+                break;
+
+            case TransitionSide.Top:
+                centralTransitionPoint += new Vector3((worldTopRightLimit.x + worldBottomLeftLimit.x) / 2 + offset, worldTopRightLimit.y);
+                break;
+
+        }
+
+        return centralTransitionPoint + transform.position;
+    }
+
+    private float GetOffset(Transition transition)
+    {
+        float offset = 0f;
+        float trueTransitionOffset = (transition.offset + 1) / 2; // From -1,1 to 0, 1
+
+        switch (transition.transitionSide)
+        {
+            case TransitionSide.Left:
+            case TransitionSide.Right:
+                var height = worldTopRightLimit.y - worldBottomLeftLimit.y;
+                offset = (height - (height * transition.size)) * 0.5f;
+                break;
+
+            case TransitionSide.Bottom:
+            case TransitionSide.Top:
+                var width = worldTopRightLimit.x - worldBottomLeftLimit.x;
+                offset = (width - (width * transition.size)) * 0.5f;
+                break;
+
+        }
+
+        Debug.Log($"{-offset} , {offset} , {trueTransitionOffset}");
+        return Mathf.Lerp(-offset , offset , trueTransitionOffset);
+
+    }
+
+    public Vector2 GetColliderHeightWidth(Transition transition)
+    {
+
+        float witdh = 0.1f;
+        float height = 0.1f;
+        float sizeMultiplicator = 1f;
+
+        if (transition.isColliderReduced) sizeMultiplicator = transition.size;
+
+        switch (transition.transitionSide)
+        {
+            case TransitionSide.Left:
+                height = (worldTopRightLimit.y - worldBottomLeftLimit.y) * sizeMultiplicator; 
+                break;
+
+            case TransitionSide.Right:
+                height = (worldTopRightLimit.y - worldBottomLeftLimit.y) * sizeMultiplicator;
+                break;
+
+            case TransitionSide.Bottom:
+                witdh = (worldTopRightLimit.x - worldBottomLeftLimit.x) * sizeMultiplicator;
+                break;
+
+            case TransitionSide.Top:
+                witdh = (worldTopRightLimit.x - worldBottomLeftLimit.x) * sizeMultiplicator;
+                break;
+
+        }
+
+        return new Vector2(witdh, height);
+    }
 }
 
 
@@ -149,5 +217,10 @@ public class Transition
 {
     public TransitionSide transitionSide;
     public int newRoomID;
+
+    public bool isColliderReduced;
+
+    [Range(-1f, 1f)] public float offset = 0f;
+    [Range(0.05f, 1)] public float size = 1f;
 
 }

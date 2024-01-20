@@ -44,9 +44,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aec2e06d9c33fc04fae86a8afc466a32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bottomLeftLimit: {x: -1.2, y: -0.9, z: 0}
-  topRightLimit: {x: 1.2, y: 0.9, z: 0}
+  position: {x: 0, y: 0}
+  bottomLeftLimit: {x: -1, y: 0}
+  topRightLimit: {x: 1, y: 0}
+  worldBottomLeftLimit: {x: -3.6000001, y: -0.9, z: 0}
+  worldTopRightLimit: {x: 3.6000001, y: 0.9, z: 0}
   roomTransitionPrefab: {fileID: 8291192240538636720, guid: c8860670251770945b747fd88814afe4, type: 3}
   transitions: []
+  drawDebug: 0
   handlesColor: {r: 1, g: 0, b: 0, a: 1}
+  handlesColliderColor: {r: 0, g: 1, b: 0, a: 1}
   lineThickness: 3
