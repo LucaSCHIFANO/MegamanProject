@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cd37616f676bae47b8f8ce701877686, type: 3}
+  m_Name: SoundTest
+  m_EditorClassIdentifier: 
+  clip:
+  - {fileID: 8300000, guid: 8a27ab6e45cba5a44978ee41d1779408, type: 3}
+  - {fileID: 8300000, guid: 258c3397d2005fc4d97e421311495b11, type: 3}
+  - {fileID: 8300000, guid: 999f8a6cf5515024bbe1ed41cf1e91e2, type: 3}
+  - {fileID: 8300000, guid: 9168dd3b5a8ffbc47bc9c40c2677cc4a, type: 3}
+  - {fileID: 8300000, guid: f8e4d7bc12de3424b9a038b4de07b414, type: 3}
+  audioMixerGroup: {fileID: -1108565230923816475, guid: d170e0497a02ed544a0efa2dcc44adbf, type: 2}
+  isVolumeRandom: 0
+  volume: 0.1
+  randomVolume: {x: 0.1, y: 0.5}
+  isPitchRandom: 0
+  pitch: 1
+  randomPitch: {x: 0.5, y: 1}
+  playOnAwake: 0
+  loop: 0
+  numberOfLoops: 5

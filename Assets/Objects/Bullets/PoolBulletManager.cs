@@ -3,10 +3,13 @@ using UnityEngine.Pool;
 
 public class PoolBulletManager : MonoBehaviour
 {
-    public ObjectPool<Bullet> Pool { get => pool; }
     private ObjectPool<Bullet> pool;
+    public ObjectPool<Bullet> Pool { get => pool; }
 
     [SerializeField] private Bullet bullet;
+
+    [SerializeField] private int initialBullets;
+    [SerializeField] private int maxBullets;
     
     
     
@@ -19,8 +22,8 @@ public class PoolBulletManager : MonoBehaviour
 
     private void Awake()
     {
-        _instance = this;
-        pool = new ObjectPool<Bullet>(CreateFunction,  OnGetFunction, OnReleaseFunction, OnDestroyFunction, false, 1, 3);
+        if(_instance == null) _instance = this;
+        pool = new ObjectPool<Bullet>(CreateFunction,  OnGetFunction, OnReleaseFunction, OnDestroyFunction, false, initialBullets, maxBullets);
     }
 
     #region Pool Functions

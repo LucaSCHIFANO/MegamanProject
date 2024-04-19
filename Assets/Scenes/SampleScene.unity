@@ -880,6 +880,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ce7837ec35f57240a5fd750e7969bf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  audioSource: {fileID: 4463875955725838069, guid: d75b46e06812206448bb827ddbe1f60f, type: 3}
+  initialAudioSource: 1
+  maxAudioSource: 3
+  soundTest: {fileID: 11400000, guid: 7bc9827898b8d624f9d80e2f7e4950aa, type: 2}
 --- !u!1 &303522752
 GameObject:
   m_ObjectHideFlags: 0
@@ -3053,6 +3057,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bullet: {fileID: -6922166248971353187, guid: 9ccb88bdec3740040a58048a77d712eb, type: 3}
+  initialBullets: 1
+  maxBullets: 3
 --- !u!4 &1241595039
 Transform:
   m_ObjectHideFlags: 0

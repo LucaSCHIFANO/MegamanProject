@@ -5,7 +5,7 @@ using NaughtyAttributes;
 [CreateAssetMenu(menuName = "Scriptable Objects/Sound Design/New Sound")]
 public class SOSound : ScriptableObject
 {
-    public AudioClip clip = null;
+    public AudioClip[] clip;
     public AudioMixerGroup audioMixerGroup = null;
 
     public bool isVolumeRandom = false;
@@ -15,9 +15,9 @@ public class SOSound : ScriptableObject
     public Vector2 randomVolume;
 
     public bool isPitchRandom = false;
-    [Range(-3f, 3f)]
+    [Range(0f, 3f)]
     public float pitch = 1.0f;
-    [MinMaxSlider(-3f, 3f)]
+    [MinMaxSlider(0f, 3f)]
     public Vector2 randomPitch;
 
     public bool playOnAwake = false;

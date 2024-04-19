@@ -1,7 +1,5 @@
 using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 [CustomEditor(typeof(SOSound)), CanEditMultipleObjects]
 public class SoundDrawer : Editor
@@ -43,7 +41,8 @@ public class SoundDrawer : Editor
     {
         EditorGUILayout.LabelField("Sound", EditorStyles.boldLabel, GUILayout.Height(20));
 
-        EditorGUILayout.PropertyField(m_clip, new GUIContent("Clip"), GUILayout.Height(20));
+        EditorGUILayout.PropertyField(m_clip, new GUIContent("Clip"), true);
+        EditorGUILayout.Space(5);
         EditorGUILayout.PropertyField(m_audioMixer, new GUIContent("Audio Mixer Group"), GUILayout.Height(20));
 
         EditorGUILayout.Space(20);
@@ -75,9 +74,6 @@ public class SoundDrawer : Editor
         EditorGUILayout.PropertyField(m_loop, new GUIContent("Loop"), GUILayout.Height(20));
         if (m_loop.boolValue)
             EditorGUILayout.PropertyField(m_numberOfLoops, new GUIContent("Number Of Loops"), GUILayout.Height(20));
-
-
-
     }
 
 }
