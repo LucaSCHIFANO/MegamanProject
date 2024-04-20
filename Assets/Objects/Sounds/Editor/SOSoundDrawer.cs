@@ -2,9 +2,10 @@ using UnityEditor;
 using UnityEngine;
 
 [CustomEditor(typeof(SOSound)), CanEditMultipleObjects]
-public class SoundDrawer : Editor
+public class SOSoundDrawer : Editor
 {
-    SerializedProperty m_clip;
+    private bool isOpen;
+    SerializedProperty m_sounds;
     SerializedProperty m_audioMixer;
 
     SerializedProperty m_isVolumeRandom;
@@ -15,13 +16,12 @@ public class SoundDrawer : Editor
     SerializedProperty m_pitch;
     SerializedProperty m_randomPitch;
 
-    SerializedProperty m_playOnAwake;
     SerializedProperty m_loop;
     SerializedProperty m_numberOfLoops;
 
     private void OnEnable()
     {
-        m_clip = serializedObject.FindProperty("clip");
+        m_sounds = serializedObject.FindProperty("sounds");
         m_audioMixer = serializedObject.FindProperty("audioMixerGroup");
 
         m_isVolumeRandom = serializedObject.FindProperty("isVolumeRandom");
@@ -32,7 +32,6 @@ public class SoundDrawer : Editor
         m_pitch = serializedObject.FindProperty("pitch");
         m_randomPitch = serializedObject.FindProperty("randomPitch");
 
-        m_playOnAwake = serializedObject.FindProperty("playOnAwake");
         m_loop = serializedObject.FindProperty("loop");
         m_numberOfLoops = serializedObject.FindProperty("numberOfLoops");
 
@@ -43,7 +42,31 @@ public class SoundDrawer : Editor
 
         EditorGUILayout.LabelField("Sound", EditorStyles.boldLabel, GUILayout.Height(20));
 
-        EditorGUILayout.PropertyField(m_clip, new GUIContent("Clip"), true);
+
+        isOpen = EditorGUILayout.Foldout(isOpen, "Clips");
+        if(isOpen)
+        {
+            m_sounds.arraySize = EditorGUILayout.IntField("Size", m_sounds.arraySize);
+            EditorGUILayout.Space(5);
+
+            for (int i = 0; i < m_sounds.arraySize; i++)
+            {
+                EditorGUILayout.BeginHorizontal();
+
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(m_sounds.GetArrayElementAtIndex(i).FindPropertyRelative("clip"), new GUIContent(""));
+                EditorGUIUtility.labelWidth = 50;
+                EditorGUI.indentLevel--;
+                EditorGUILayout.PropertyField(m_sounds.GetArrayElementAtIndex(i).FindPropertyRelative("weight"));
+                EditorGUIUtility.labelWidth = 0;
+                
+                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.Space(2.5f);
+
+            }
+            EditorGUILayout.Space(10);
+        }
+
         EditorGUILayout.Space(5);
         EditorGUILayout.PropertyField(m_audioMixer, new GUIContent("Audio Mixer Group"), GUILayout.Height(20));
 
@@ -72,12 +95,10 @@ public class SoundDrawer : Editor
         EditorGUILayout.Space(20);
         EditorGUILayout.LabelField("Settings", EditorStyles.boldLabel, GUILayout.Height(20));
 
-        EditorGUILayout.PropertyField(m_playOnAwake, new GUIContent("Play On Awake"), GUILayout.Height(20));
         EditorGUILayout.PropertyField(m_loop, new GUIContent("Loop"), GUILayout.Height(20));
         if (m_loop.boolValue)
             EditorGUILayout.PropertyField(m_numberOfLoops, new GUIContent("Number Of Loops"), GUILayout.Height(20));
 
         serializedObject.ApplyModifiedProperties();
     }
-
 }

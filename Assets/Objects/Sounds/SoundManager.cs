@@ -38,13 +38,16 @@ public class SoundManager : MonoBehaviour
 
     public void Play(SOSound sound)
     {
+        int currentSoundIndex = GetRandomSound(sound.sounds);
+        if (currentSoundIndex == -1) return;
+        
         var newSoundEmitter = pool.Get();
         newSoundEmitter.Init(pool.Release);
 
-        var currentClip = sound.clip[Random.Range(0, sound.clip.Length)];
+        var currentSound = sound.sounds[currentSoundIndex];
         var currentPitch = sound.isPitchRandom ? Random.Range(sound.randomPitch.x, sound.randomPitch.y) : sound.pitch;
 
-        newSoundEmitter.AudioSource.clip = currentClip;
+        newSoundEmitter.AudioSource.clip = currentSound.clip;
         newSoundEmitter.AudioSource.outputAudioMixerGroup = sound.audioMixerGroup;
         newSoundEmitter.AudioSource.volume = sound.isVolumeRandom ? Random.Range(sound.randomVolume.x, sound.randomVolume.y) : sound.volume;
         newSoundEmitter.AudioSource.pitch = currentPitch;
@@ -54,15 +57,53 @@ public class SoundManager : MonoBehaviour
         if (sound.loop) 
         {
             if(sound.numberOfLoops > 0)
-                newSoundEmitter.Invoke("DestroySoundEmitter", currentClip.length / currentPitch * sound.numberOfLoops);
+                newSoundEmitter.Invoke("DestroySoundEmitter", currentSound.clip.length / currentPitch * sound.numberOfLoops);
         }
-        else newSoundEmitter.Invoke("DestroySoundEmitter", currentClip.length / currentPitch);
+        else newSoundEmitter.Invoke("DestroySoundEmitter", currentSound.clip.length / currentPitch);
 
         newSoundEmitter.AudioSource.Play();
 
         if(!soundEmitters.Contains(newSoundEmitter)) soundEmitters.Add(newSoundEmitter);
     }
 
+    private int GetRandomSound(Sound[] sounds)
+    {
+        if (sounds == null || sounds.Length == 0) return -1;
+
+        float weight;
+        float total = 0;
+        for (int i = 0; i < sounds.Length; i++)
+        {
+            weight = sounds[i].weight;
+
+            if (float.IsPositiveInfinity(weight))
+            {
+                return i;
+            }
+            else if (weight >= 0f && !float.IsNaN(weight))
+            {
+                total += sounds[i].weight;
+            }
+        }
+
+        float randomValue = Random.value;
+        float sum = 0f;
+
+        for (int i = 0; i < sounds.Length; i++)
+        {
+            weight = sounds[i].weight;
+            if (float.IsNaN(weight) || weight <= 0f) continue;
+
+            sum += weight / total;
+            if (sum >= randomValue)
+            {
+                Debug.Log($"Random value : {randomValue}, sum : {sum}");
+                return i;
+            }
+        }
+
+        return -1;
+    }
 
 
     #region Pool Functions

@@ -1,11 +1,12 @@
 using UnityEngine;
 using UnityEngine.Audio;
 using NaughtyAttributes;
+using System;
 
 [CreateAssetMenu(menuName = "Scriptable Objects/Sound Design/New Sound")]
 public class SOSound : ScriptableObject
 {
-    public AudioClip[] clip;
+    public Sound[] sounds;
     public AudioMixerGroup audioMixerGroup = null;
 
     public bool isVolumeRandom = false;
@@ -27,4 +28,12 @@ public class SOSound : ScriptableObject
     /// </summary>
     [Min(0)]
     public int numberOfLoops;
+}
+
+[Serializable]
+public class Sound
+{
+    public AudioClip clip;
+    [Min(0)]
+    public float weight;
 }
