@@ -97,7 +97,6 @@ public class SoundManager : MonoBehaviour
             sum += weight / total;
             if (sum >= randomValue)
             {
-                Debug.Log($"Random value : {randomValue}, sum : {sum}");
                 return i;
             }
         }
