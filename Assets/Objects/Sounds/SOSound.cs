@@ -21,7 +21,6 @@ public class SOSound : ScriptableObject
     [MinMaxSlider(0f, 3f)]
     public Vector2 randomPitch;
 
-    public bool playOnAwake = false;
     public bool loop = false;
     /// <summary>
     /// 0 if infinite;
