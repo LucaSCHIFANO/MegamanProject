@@ -39,6 +39,8 @@ public class SoundDrawer : Editor
     }
     public override void OnInspectorGUI()
     {
+        serializedObject.Update();
+
         EditorGUILayout.LabelField("Sound", EditorStyles.boldLabel, GUILayout.Height(20));
 
         EditorGUILayout.PropertyField(m_clip, new GUIContent("Clip"), true);
@@ -74,6 +76,8 @@ public class SoundDrawer : Editor
         EditorGUILayout.PropertyField(m_loop, new GUIContent("Loop"), GUILayout.Height(20));
         if (m_loop.boolValue)
             EditorGUILayout.PropertyField(m_numberOfLoops, new GUIContent("Number Of Loops"), GUILayout.Height(20));
+
+        serializedObject.ApplyModifiedProperties();
     }
 
 }
