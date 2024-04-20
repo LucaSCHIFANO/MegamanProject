@@ -717,7 +717,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: transitions.Array.data[1].size
-      value: 0.099
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: transitions.Array.data[0].offset
@@ -2491,7 +2491,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: transitions.Array.data[0].isColliderReduced
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8245232971937924108, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: m_LocalPosition.x

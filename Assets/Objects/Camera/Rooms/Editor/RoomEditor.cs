@@ -9,15 +9,33 @@ using UnityEngine;
 [CustomEditor(typeof(Room))]
 public class RoomEditor : Editor
 {
+    SerializedProperty m_Position;
+
+    SerializedProperty m_RoomBottomLeftLimit;
+    SerializedProperty m_RoomTopRightLimit;
+
+    SerializedProperty m_LocalBottomLeftLimit;
+    SerializedProperty m_LocalTopRightLimit;
+
     SerializedProperty m_HandlesColor;
     SerializedProperty m_HandlesColliderColor;
     SerializedProperty m_LineThickness;
+    SerializedProperty m_DrawDebug;
 
     private void OnEnable()
     {
+        m_Position = serializedObject.FindProperty("position");
+
+        m_RoomBottomLeftLimit = serializedObject.FindProperty("bottomLeftLimit");
+        m_RoomTopRightLimit = serializedObject.FindProperty("topRightLimit");
+
+        m_LocalBottomLeftLimit = serializedObject.FindProperty("worldBottomLeftLimit");
+        m_LocalTopRightLimit = serializedObject.FindProperty("worldTopRightLimit");
+        
         m_HandlesColor = serializedObject.FindProperty("handlesColor");
         m_HandlesColliderColor = serializedObject.FindProperty("handlesColliderColor");
         m_LineThickness = serializedObject.FindProperty("lineThickness");
+        m_DrawDebug = serializedObject.FindProperty("drawDebug");
     }
 
     private void OnSceneGUI()
@@ -26,35 +44,32 @@ public class RoomEditor : Editor
         if (room == null) return;
         EditorUtility.SetDirty(room);
 
-        room.gameObject.transform.position = room.roomPositionToWorldPosition(room.RoomPosition);
+        room.gameObject.transform.position = room.roomPositionToWorldPosition(m_Position.vector2IntValue);
 
-        room.LocalBottomLeftLimit = room.roomBoundPositionToWorldPosition(room.RoomBottomLeftLimit, true);
-        room.LocalTopRightLimit = room.roomBoundPositionToWorldPosition(room.RoomTopRightLimit, false);
+        m_LocalBottomLeftLimit.vector3Value = room.roomBoundPositionToWorldPosition(m_RoomBottomLeftLimit.vector2IntValue, true);
+        m_LocalTopRightLimit.vector3Value = room.roomBoundPositionToWorldPosition(m_RoomTopRightLimit.vector2IntValue, false);
 
-        var bottomLeftLimit = room.LocalBottomLeftLimit + new Vector2(room.transform.position.x, room.transform.position.y);
-        var topRightLimit = room.LocalTopRightLimit + new Vector2(room.transform.position.x, room.transform.position.y);
+        var bottomLeftLimit = m_LocalBottomLeftLimit.vector3Value + new Vector3(room.transform.position.x, room.transform.position.y);
+        var topRightLimit = m_LocalTopRightLimit.vector3Value + new Vector3(room.transform.position.x, room.transform.position.y);
 
         var bottomRightLimit = new Vector3(topRightLimit.x, bottomLeftLimit.y, 0);
         var topLeftLimit = new Vector3(bottomLeftLimit.x, topRightLimit.y, 0);
 
 
 
-        if (room.DrawDebug)
+        if (m_DrawDebug.boolValue)
         {
+            Handles.color = m_HandlesColor.colorValue;
 
-            var lineThickness = room.LineThickness;
-
-            Handles.color = room.HandlesColor;
-
-            Handles.DrawLine(bottomLeftLimit, topLeftLimit, lineThickness);
-            Handles.DrawLine(topLeftLimit, topRightLimit, lineThickness);
-            Handles.DrawLine(topRightLimit, bottomRightLimit, lineThickness);
-            Handles.DrawLine(bottomRightLimit, bottomLeftLimit, lineThickness);
+            Handles.DrawLine(bottomLeftLimit, topLeftLimit, m_LineThickness.floatValue);
+            Handles.DrawLine(topLeftLimit, topRightLimit, m_LineThickness.floatValue);
+            Handles.DrawLine(topRightLimit, bottomRightLimit, m_LineThickness.floatValue);
+            Handles.DrawLine(bottomRightLimit, bottomLeftLimit, m_LineThickness.floatValue);
 
 
             if (room.Transitions.Count > 0)
             {
-                Handles.color = room.HandlesColliderColor;
+                Handles.color = m_HandlesColliderColor.colorValue;
 
 
                 for (int i = 0; i < room.Transitions.Count; i++)
@@ -68,10 +83,10 @@ public class RoomEditor : Editor
                     var bottomRightCollider = new Vector2(centralPosition.x + size.x, centralPosition.y - size.y);
                     var topLeftCollider = new Vector2(centralPosition.x - size.x, centralPosition.y + size.y);
 
-                    Handles.DrawLine(bottomLeftCollider, topLeftCollider, lineThickness);
-                    Handles.DrawLine(topLeftCollider, topRightCollider, lineThickness);
-                    Handles.DrawLine(topRightCollider, bottomRightCollider, lineThickness);
-                    Handles.DrawLine(bottomRightCollider, bottomLeftCollider, lineThickness);
+                    Handles.DrawLine(bottomLeftCollider, topLeftCollider, m_LineThickness.floatValue);
+                    Handles.DrawLine(topLeftCollider, topRightCollider, m_LineThickness.floatValue);
+                    Handles.DrawLine(topRightCollider, bottomRightCollider, m_LineThickness.floatValue);
+                    Handles.DrawLine(bottomRightCollider, bottomLeftCollider, m_LineThickness.floatValue);
 
                 }
 
@@ -87,7 +102,7 @@ public class RoomEditor : Editor
 
         DrawPropertiesExcluding(serializedObject, "handlesColor", "handlesColliderColor", "lineThickness");
 
-        if (room.DrawDebug) 
+        if (m_DrawDebug.boolValue) 
         {
             EditorGUILayout.PropertyField(m_HandlesColor, new GUIContent("Handles Color"), GUILayout.Height(20));
             EditorGUILayout.PropertyField(m_HandlesColliderColor, new GUIContent("Handles Collider Color"), GUILayout.Height(20));
@@ -100,12 +115,12 @@ public class RoomEditor : Editor
 
 
 
-[CustomPropertyDrawer(typeof(Transition))]
+[CustomPropertyDrawer(typeof(Transition)), CanEditMultipleObjects]
 public class TransitionEditor : PropertyDrawer
 {
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
-        EditorGUI.BeginProperty(position,label, property);
+        EditorGUI.BeginProperty(position, label, property);
 
         var indent = EditorGUI.indentLevel;
         EditorGUI.indentLevel = 0;
