@@ -98,8 +98,6 @@ public class RoomEditor : Editor
 
     public override void OnInspectorGUI()
     {
-        var room = target as Room;
-
         DrawPropertiesExcluding(serializedObject, "handlesColor", "handlesColliderColor", "lineThickness");
 
         if (m_DrawDebug.boolValue) 
