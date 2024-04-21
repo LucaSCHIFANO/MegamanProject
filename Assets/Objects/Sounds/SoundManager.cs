@@ -46,6 +46,11 @@ public class SoundManager : MonoBehaviour
             Stop(lastSoundPlayed);
     }
 
+    /// <summary>
+    /// Play a sound. Return the id of the emitter which can be used in Stop
+    /// </summary>
+    /// <param name="sound"></param>
+    /// <returns></returns>
     public int Play(SOSound sound)
     {
         int currentSoundIndex = GetRandomSound(sound.sounds);
