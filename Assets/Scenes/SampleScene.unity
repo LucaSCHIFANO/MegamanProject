@@ -883,6 +883,11 @@ MonoBehaviour:
   audioSourcePrefab: {fileID: 4463875955725838069, guid: d75b46e06812206448bb827ddbe1f60f, type: 3}
   initialAudioSource: 1
   maxAudioSource: 3
+  mixerTypes:
+  - audioMixerGroup: {fileID: -7610989133971566359, guid: d170e0497a02ed544a0efa2dcc44adbf, type: 2}
+    soundType: 0
+  - audioMixerGroup: {fileID: -1108565230923816475, guid: d170e0497a02ed544a0efa2dcc44adbf, type: 2}
+    soundType: 1
   soundTest: {fileID: 11400000, guid: 7bc9827898b8d624f9d80e2f7e4950aa, type: 2}
 --- !u!1 &303522752
 GameObject:
@@ -1119,6 +1124,51 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.1, y: 1.8}
   m_EdgeRadius: 0
+--- !u!1 &325791624
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 325791625}
+  - component: {fileID: 325791626}
+  m_Layer: 0
+  m_Name: LevelManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &325791625
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 325791624}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 866543441}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &325791626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 325791624}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 809371ff0aeff124cb72002bf62293a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  megaman: {fileID: 1839168893}
 --- !u!1 &439934635
 GameObject:
   m_ObjectHideFlags: 0
@@ -1163,7 +1213,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b547265d54e08c4facdb2116bc933cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingRoom: 0
   rooms:
   - {fileID: 1829821481}
 --- !u!1 &458243067
@@ -2589,6 +2638,7 @@ Transform:
   m_Children:
   - {fileID: 1241595039}
   - {fileID: 247068219}
+  - {fileID: 325791625}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &896016672
@@ -4659,6 +4709,17 @@ SpriteRenderer:
   m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1839168893 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2425367405057728953, guid: f4364f0a7f457214eb6adb5b4a0f371d, type: 3}
+  m_PrefabInstance: {fileID: 428907045424691223}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1004219447}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76ebd6668e1943a47b0a261448b61cdb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1841136169
 GameObject:
   m_ObjectHideFlags: 0
@@ -5241,7 +5302,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b547265d54e08c4facdb2116bc933cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingRoom: 1
   rooms:
   - {fileID: 2117974460}
   - {fileID: 171177091}
@@ -5685,11 +5745,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7730201049878437465, guid: f4364f0a7f457214eb6adb5b4a0f371d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.44
+      value: 2.52
       objectReference: {fileID: 0}
     - target: {fileID: 7730201049878437465, guid: f4364f0a7f457214eb6adb5b4a0f371d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.49
+      value: 1.54
       objectReference: {fileID: 0}
     - target: {fileID: 7730201049878437465, guid: f4364f0a7f457214eb6adb5b4a0f371d, type: 3}
       propertyPath: m_LocalPosition.z

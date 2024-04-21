@@ -13,17 +13,16 @@ MonoBehaviour:
   m_Name: SoundTest
   m_EditorClassIdentifier: 
   sounds:
-  - clip: {fileID: 8300000, guid: 8a27ab6e45cba5a44978ee41d1779408, type: 3}
-    weight: 1
   - clip: {fileID: 8300000, guid: 999f8a6cf5515024bbe1ed41cf1e91e2, type: 3}
     weight: 1
-  audioMixerGroup: {fileID: -1108565230923816475, guid: d170e0497a02ed544a0efa2dcc44adbf, type: 2}
+  - clip: {fileID: 8300000, guid: f8e4d7bc12de3424b9a038b4de07b414, type: 3}
+    weight: 1
+  soundType: 1
   isVolumeRandom: 0
   volume: 0.1
   randomVolume: {x: 0.1, y: 0.5}
   isPitchRandom: 0
   pitch: 1
   randomPitch: {x: 0.5, y: 1.5273438}
-  playOnAwake: 0
   loop: 0
   numberOfLoops: 0

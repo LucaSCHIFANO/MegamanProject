@@ -1,5 +1,7 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.Pool;
 
 public class SoundManager : MonoBehaviour
@@ -32,8 +34,26 @@ public class SoundManager : MonoBehaviour
 
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.G))
-            Play(soundTest);
+        if (Input.GetKeyDown(KeyCode.G))
+            PlayWithDelay(soundTest, 1.5f);
+
+        if (Input.GetKeyDown(KeyCode.H))
+            StopAll();
+    }
+
+    public void PlayWithDelay(SOSound sound, float delay)
+    {
+        StartCoroutine(PlayDelayed(sound, delay));
+    }
+
+    private IEnumerator PlayDelayed(SOSound sound, float delay, bool isRealTime = false)
+    {
+        if (isRealTime)
+            yield return new WaitForSecondsRealtime(delay);
+        else
+            yield return new WaitForSeconds(delay);
+
+        Play(sound);
     }
 
     public void Play(SOSound sound)
@@ -64,6 +84,17 @@ public class SoundManager : MonoBehaviour
         newSoundEmitter.AudioSource.Play();
 
         if(!soundEmitters.Contains(newSoundEmitter)) soundEmitters.Add(newSoundEmitter);
+    }
+
+    public void StopAll()
+    {
+        for (int i = soundEmitters.Count - 1; i >= 0; i--)
+        {
+            if (!soundEmitters[i].isActiveAndEnabled) continue;
+
+            soundEmitters[i].CancelInvoke();
+            soundEmitters[i].DestroySoundEmitter();
+        }
     }
 
     private int GetRandomSound(Sound[] sounds)
