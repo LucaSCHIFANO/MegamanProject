@@ -55,7 +55,6 @@ public class RoomManager : MonoBehaviour
     }
 
 
-
     public void SetNewRoom(int id, bool hasTransition)
     {
         if (id == -1) return;

@@ -42,10 +42,11 @@ public class Room : MonoBehaviour
     [SerializeField] private Color handlesColliderColor = Color.green;
     [SerializeField] private float lineThickness = 3;
 
+    [SerializeField, HideInInspector] public List<Transition> Transitions { get => transitions;}
+
     #region GetSet
 
     //Position (Room Ref)
-    public Vector3 GameObjectPosition { get => transform.position; set => transform.position = value; }
     public Vector2Int RoomPosition { get => position; set => position = value; }
     public Vector2Int RoomBottomLeftLimit { get => bottomLeftLimit; set => bottomLeftLimit = value; }
     public Vector2Int RoomTopRightLimit { get => topRightLimit; set => topRightLimit = value; }
@@ -58,12 +59,6 @@ public class Room : MonoBehaviour
     public Vector2 WorldBottomLeftLimit { get => worldBottomLeftLimit + transform.position;}
     public Vector2 WorldTopRightLimit { get => worldTopRightLimit + transform.position;}
 
-    //Debug
-    public bool DrawDebug { get => drawDebug; set => drawDebug = value; }
-    public Color HandlesColor { get => handlesColor; }
-    public float LineThickness { get => lineThickness; }
-    public Color HandlesColliderColor { get => handlesColliderColor; }
-    [SerializeField, HideInInspector] public List<Transition> Transitions { get => transitions;}
 
     #endregion
 
@@ -100,8 +95,8 @@ public class Room : MonoBehaviour
                     break;
             }
 
-            transition.NewRoomID = RoomManager.Instance.GetAdjacentId(
-                worldPositionToRoomPosition(nextRoomPosition),transition.TransitionSide);
+            var manager = RoomManager.Instance;
+            transition.NewRoomID = manager.GetAdjacentId(manager.worldPositionToRoomPosition(nextRoomPosition),transition.TransitionSide);
         }
     }
 
@@ -133,14 +128,6 @@ public class Room : MonoBehaviour
     public Vector3 roomPositionToWorldPosition(Vector2Int position)
     {
         return new Vector3(gridX * position.x, gridY * position.y, 0);
-    }
-
-    public Vector2Int worldPositionToRoomPosition(Vector3 position)
-    {
-        int posX = Mathf.FloorToInt((position.x + gridX / 2) / gridX);
-        int posY = Mathf.FloorToInt((position.y + gridY / 2) / gridY);
-
-        return new Vector2Int(posX, posY);
     }
 
     public Vector3 roomBoundPositionToWorldPosition(Vector2Int position, bool isBottomLeft)
