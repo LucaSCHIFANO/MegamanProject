@@ -5,7 +5,6 @@ using static Room;
 public class RoomManager : MonoBehaviour
 {
     [Header("Rooms")]
-    [SerializeField] private int startingRoom;
     [SerializeField] private List<Room> rooms= new List<Room>();
     private Dictionary<Vector2Int, Room> roomGrid = new Dictionary<Vector2Int, Room>();
     
@@ -40,10 +39,19 @@ public class RoomManager : MonoBehaviour
 
         if(currentCamera != null)
         {
-            if (startingRoom < rooms.Count) SetNewRoom(startingRoom, false);
+            int roomId = GetAdjacentId(worldPositionToRoomPosition(LevelManager.Instance.Megaman.transform.position), TransitionSide.None);
+            if (roomId >= 0 && roomId < rooms.Count) SetNewRoom(roomId, false);
             else SetNewRoom(0, false);
             
         }
+    }
+
+    public Vector2Int worldPositionToRoomPosition(Vector3 position) // same function as room :/
+    {
+        int posX = Mathf.FloorToInt((position.x + gridX / 2) / gridX);
+        int posY = Mathf.FloorToInt((position.y + gridY / 2) / gridY);
+
+        return new Vector2Int(posX, posY);
     }
 
 
