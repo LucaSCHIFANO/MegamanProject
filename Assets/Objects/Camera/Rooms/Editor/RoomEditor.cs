@@ -126,16 +126,14 @@ public class TransitionEditor : PropertyDrawer
         EditorGUI.indentLevel = 0;
 
         var transitionSideRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
-        var newRoomIdRect = new Rect(position.x, position.y + 20f, position.width, EditorGUIUtility.singleLineHeight);
-        var onlyOnLadderRect = new Rect(position.x, position.y + 40f, position.width, EditorGUIUtility.singleLineHeight);
+        var onlyOnLadderRect = new Rect(position.x, position.y + 20f, position.width, EditorGUIUtility.singleLineHeight);
 
 
-        var isColliderReducedRect = new Rect(position.x, position.y + 70f, position.width, EditorGUIUtility.singleLineHeight);
-        var offsetRect = new Rect(position.x, position.y + 90f, position.width, EditorGUIUtility.singleLineHeight);
-        var sizeRect = new Rect(position.x, position.y + 110f, position.width, EditorGUIUtility.singleLineHeight);
+        var isColliderReducedRect = new Rect(position.x, position.y + 40f, position.width, EditorGUIUtility.singleLineHeight);
+        var offsetRect = new Rect(position.x, position.y + 60f, position.width, EditorGUIUtility.singleLineHeight);
+        var sizeRect = new Rect(position.x, position.y + 80f, position.width, EditorGUIUtility.singleLineHeight);
 
         var transitionSide = property.FindPropertyRelative("transitionSide");
-        var newRoomId = property.FindPropertyRelative("newRoomID");
         var onlyOnLadder = property.FindPropertyRelative("onlyOnLadder");
         var isColliderReduced = property.FindPropertyRelative("isColliderReduced");
         var offset = property.FindPropertyRelative("offset");
@@ -143,7 +141,6 @@ public class TransitionEditor : PropertyDrawer
 
 
         transitionSide.intValue = EditorGUI.Popup(transitionSideRect, "Transition side", transitionSide.intValue, transitionSide.enumNames);
-        EditorGUI.PropertyField(newRoomIdRect, newRoomId);
         EditorGUI.PropertyField(onlyOnLadderRect, onlyOnLadder);
         EditorGUI.PropertyField(isColliderReducedRect, isColliderReduced);
 
@@ -160,7 +157,7 @@ public class TransitionEditor : PropertyDrawer
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
         if(property.FindPropertyRelative("isColliderReduced").boolValue)
-            return (20 - EditorGUIUtility.singleLineHeight) + (EditorGUIUtility.singleLineHeight * 7f);
-        else return (20 - EditorGUIUtility.singleLineHeight) + (EditorGUIUtility.singleLineHeight * 5f);
+            return (20 - EditorGUIUtility.singleLineHeight) + (EditorGUIUtility.singleLineHeight * 5.75f);
+        else return (20 - EditorGUIUtility.singleLineHeight) + (EditorGUIUtility.singleLineHeight * 3.75f);
     }
 }

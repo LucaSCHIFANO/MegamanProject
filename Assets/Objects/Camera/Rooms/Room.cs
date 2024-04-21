@@ -79,13 +79,39 @@ public class Room : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        foreach (var transition in roomTransitions)
+        {
+            var nextRoomPosition = transition.transform.position;
+            switch (transition.TransitionSide)
+            {
+                case TransitionSide.Left:
+                    nextRoomPosition += new Vector3(0.1f, 0);
+                    break;
+                case TransitionSide.Right:
+                    nextRoomPosition += new Vector3(-0.1f, 0);
+                    break;
+                case TransitionSide.Bottom:
+                    nextRoomPosition += new Vector3(0, 0.1f);
+                    break;
+                case TransitionSide.Top:
+                    nextRoomPosition += new Vector3(0, -0.1f);
+                    break;
+            }
+
+            transition.NewRoomID = RoomManager.Instance.GetAdjacentId(
+                worldPositionToRoomPosition(nextRoomPosition),transition.TransitionSide);
+        }
+    }
+
     void SetTransitionHitbox(Transition transition)
     {
         var transitionGO = Instantiate(roomTransitionPrefab, transform);
         transitionGO.transform.position = GetColliderCentralPoint(transition);
         BoxCollider2D transitionCollider = transitionGO.GetComponent<BoxCollider2D>();
 
-        transitionGO.SetData(transition.transitionSide, transition.newRoomID, transition.onlyOnLadder);
+        transitionGO.SetData(transition.transitionSide, transition.onlyOnLadder);
 
         transitionCollider.isTrigger = true;
         transitionCollider.size = GetColliderHeightWidth(transition);
@@ -107,6 +133,14 @@ public class Room : MonoBehaviour
     public Vector3 roomPositionToWorldPosition(Vector2Int position)
     {
         return new Vector3(gridX * position.x, gridY * position.y, 0);
+    }
+
+    public Vector2Int worldPositionToRoomPosition(Vector3 position)
+    {
+        int posX = Mathf.FloorToInt((position.x + gridX / 2) / gridX);
+        int posY = Mathf.FloorToInt((position.y + gridY / 2) / gridY);
+
+        return new Vector2Int(posX, posY);
     }
 
     public Vector3 roomBoundPositionToWorldPosition(Vector2Int position, bool isBottomLeft)

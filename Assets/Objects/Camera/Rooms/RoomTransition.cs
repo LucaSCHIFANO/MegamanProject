@@ -12,18 +12,19 @@ public class RoomTransition : MonoBehaviour
 
     public TransitionSide TransitionSide { get => transitionSide;}
     public bool OnlyOnLadder { get => onlyOnLadder;}
+    public int NewRoomID { get => newRoomID; set => newRoomID = value; }
 
     private BoxCollider2D bc;
 
     private void Awake()
     {
         bc = GetComponent<BoxCollider2D>();
+        newRoomID = -1;
     }
 
-    public void SetData(TransitionSide _transitionSide, int _newRoomID, bool _onlyOnLadder)
+    public void SetData(TransitionSide _transitionSide, bool _onlyOnLadder)
     {
         transitionSide = _transitionSide; 
-        newRoomID = _newRoomID;
         onlyOnLadder = _onlyOnLadder;
     }
 

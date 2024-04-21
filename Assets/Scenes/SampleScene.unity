@@ -729,11 +729,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: transitions.Array.data[0].newRoomID
-      value: 0
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: transitions.Array.data[1].newRoomID
-      value: 2
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: transitions.Array.data[2].newRoomID
@@ -1195,8 +1195,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1474470804}
   - {fileID: 439934636}
+  - {fileID: 1474470804}
   - {fileID: 481844710}
   - {fileID: 1144584885}
   m_Father: {fileID: 0}
@@ -2459,7 +2459,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: transitions.Array.data[0].newRoomID
-      value: 1
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: transitions.Array.data[1].newRoomID
@@ -5516,7 +5516,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: transitions.Array.data[1].size
-      value: 0.245
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: transitions.Array.data[0].offset
@@ -5524,15 +5524,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: transitions.Array.data[1].offset
-      value: -0.46
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: transitions.Array.data[0].newRoomID
-      value: 1
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: transitions.Array.data[1].newRoomID
-      value: 1
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: transitions.Array.data[2].newRoomID
@@ -5564,7 +5564,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: transitions.Array.data[1].isColliderReduced
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8245232971937924108, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5685,11 +5685,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7730201049878437465, guid: f4364f0a7f457214eb6adb5b4a0f371d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.375
+      value: 2.44
       objectReference: {fileID: 0}
     - target: {fileID: 7730201049878437465, guid: f4364f0a7f457214eb6adb5b4a0f371d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.332
+      value: 0.49
       objectReference: {fileID: 0}
     - target: {fileID: 7730201049878437465, guid: f4364f0a7f457214eb6adb5b4a0f371d, type: 3}
       propertyPath: m_LocalPosition.z

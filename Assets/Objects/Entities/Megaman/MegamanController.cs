@@ -198,6 +198,7 @@ public class MegamanController : Entity, IBulletEmiter
         if (collision.CompareTag("RoomTransition"))
         {
             var roomTransitionComponent = collision.GetComponent<RoomTransition>();
+            if (roomTransitionComponent.NewRoomID == -1) return;
 
             if (!roomTransitionComponent.OnlyOnLadder || IsClimbing)
                 StartCoroutine(RoomTransition(collision.GetComponent<RoomTransition>()));
