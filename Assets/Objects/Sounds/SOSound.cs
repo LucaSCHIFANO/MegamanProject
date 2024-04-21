@@ -7,7 +7,7 @@ using System;
 public class SOSound : ScriptableObject
 {
     public Sound[] sounds;
-    public AudioMixerGroup audioMixerGroup = null;
+    public MixerType.SoundType soundType;
 
     public bool isVolumeRandom = false;
     [Range(0f, 1f)]

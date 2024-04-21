@@ -14,6 +14,7 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private int maxAudioSource;
 
     private List<SoundEmitter> soundEmitters = new List<SoundEmitter>();
+    [SerializeField] private List<MixerType> mixerTypes = new List<MixerType>();
 
     [Header("Test")]
     public SOSound soundTest;
@@ -35,10 +36,10 @@ public class SoundManager : MonoBehaviour
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.G))
-            PlayWithDelay(soundTest, 1.5f);
+            Play(soundTest);
 
         if (Input.GetKeyDown(KeyCode.H))
-            StopAll();
+            StopAll(MixerType.SoundType.SFX);
     }
 
     public void PlayWithDelay(SOSound sound, float delay)
@@ -66,9 +67,19 @@ public class SoundManager : MonoBehaviour
 
         var currentSound = sound.sounds[currentSoundIndex];
         var currentPitch = sound.isPitchRandom ? Random.Range(sound.randomPitch.x, sound.randomPitch.y) : sound.pitch;
+        AudioMixerGroup currentMixer = null;
+
+        foreach (MixerType mixer in mixerTypes)
+        {
+            if (sound.soundType == mixer.soundType)
+            {
+                currentMixer = mixer.audioMixerGroup;
+                break;
+            }
+        }
 
         newSoundEmitter.AudioSource.clip = currentSound.clip;
-        newSoundEmitter.AudioSource.outputAudioMixerGroup = sound.audioMixerGroup;
+        newSoundEmitter.AudioSource.outputAudioMixerGroup = currentMixer;
         newSoundEmitter.AudioSource.volume = sound.isVolumeRandom ? Random.Range(sound.randomVolume.x, sound.randomVolume.y) : sound.volume;
         newSoundEmitter.AudioSource.pitch = currentPitch;
         newSoundEmitter.AudioSource.loop = sound.loop;
@@ -91,6 +102,29 @@ public class SoundManager : MonoBehaviour
         for (int i = soundEmitters.Count - 1; i >= 0; i--)
         {
             if (!soundEmitters[i].isActiveAndEnabled) continue;
+
+            soundEmitters[i].CancelInvoke();
+            soundEmitters[i].DestroySoundEmitter();
+        }
+    }
+
+    public void StopAll(MixerType.SoundType type)
+    {
+        AudioMixerGroup currentMixer = null;
+        foreach (var mixer in mixerTypes)
+        {
+            if(mixer.soundType == type)
+            {
+                currentMixer = mixer.audioMixerGroup;
+                break;
+            }
+        }
+        if (currentMixer == null) return;
+
+        for (int i = soundEmitters.Count - 1; i >= 0; i--)
+        {
+            if (!soundEmitters[i].isActiveAndEnabled || 
+                soundEmitters[i].AudioSource.outputAudioMixerGroup != currentMixer) continue;
 
             soundEmitters[i].CancelInvoke();
             soundEmitters[i].DestroySoundEmitter();
@@ -159,4 +193,18 @@ public class SoundManager : MonoBehaviour
         Destroy(_soundEmitterToDestroy.gameObject);
     }
     #endregion 
+}
+
+
+[System.Serializable]
+public class MixerType
+{
+    public AudioMixerGroup audioMixerGroup;
+    public SoundType soundType;
+
+    public enum SoundType
+    {
+        Music,
+        SFX
+    }
 }

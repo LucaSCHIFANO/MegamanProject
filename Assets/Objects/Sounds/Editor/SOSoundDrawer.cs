@@ -6,7 +6,7 @@ public class SOSoundDrawer : Editor
 {
     private bool isOpen;
     SerializedProperty m_sounds;
-    SerializedProperty m_audioMixer;
+    SerializedProperty m_soundType;
 
     SerializedProperty m_isVolumeRandom;
     SerializedProperty m_volume;
@@ -22,7 +22,7 @@ public class SOSoundDrawer : Editor
     private void OnEnable()
     {
         m_sounds = serializedObject.FindProperty("sounds");
-        m_audioMixer = serializedObject.FindProperty("audioMixerGroup");
+        m_soundType = serializedObject.FindProperty("soundType");
 
         m_isVolumeRandom = serializedObject.FindProperty("isVolumeRandom");
         m_volume = serializedObject.FindProperty("volume");
@@ -68,7 +68,7 @@ public class SOSoundDrawer : Editor
         }
 
         EditorGUILayout.Space(5);
-        EditorGUILayout.PropertyField(m_audioMixer, new GUIContent("Audio Mixer Group"), GUILayout.Height(20));
+        EditorGUILayout.PropertyField(m_soundType, new GUIContent("Audio Mixer Group"), GUILayout.Height(20));
 
         EditorGUILayout.Space(20);
         EditorGUILayout.LabelField("Volume", EditorStyles.boldLabel, GUILayout.Height(20));
