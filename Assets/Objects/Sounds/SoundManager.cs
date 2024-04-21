@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.Pool;
@@ -13,12 +14,15 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private int initialAudioSource;
     [SerializeField] private int maxAudioSource;
 
-    private List<SoundEmitter> soundEmitters = new List<SoundEmitter>();
+    [Space]
     [SerializeField] private List<MixerType> mixerTypes = new List<MixerType>();
+
+    private Dictionary<int, SoundEmitter> soundEmitters = new Dictionary<int, SoundEmitter>();
+    private int id = 0;
 
     [Header("Test")]
     public SOSound soundTest;
-
+    public int lastSoundPlayed = 0;
 
     private static SoundManager _instance = null;
 
@@ -36,31 +40,16 @@ public class SoundManager : MonoBehaviour
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.G))
-            Play(soundTest);
+            lastSoundPlayed = Play(soundTest);
 
         if (Input.GetKeyDown(KeyCode.H))
-            StopAll(MixerType.SoundType.SFX);
+            Stop(lastSoundPlayed);
     }
 
-    public void PlayWithDelay(SOSound sound, float delay)
-    {
-        StartCoroutine(PlayDelayed(sound, delay));
-    }
-
-    private IEnumerator PlayDelayed(SOSound sound, float delay, bool isRealTime = false)
-    {
-        if (isRealTime)
-            yield return new WaitForSecondsRealtime(delay);
-        else
-            yield return new WaitForSeconds(delay);
-
-        Play(sound);
-    }
-
-    public void Play(SOSound sound)
+    public int Play(SOSound sound)
     {
         int currentSoundIndex = GetRandomSound(sound.sounds);
-        if (currentSoundIndex == -1) return;
+        if (currentSoundIndex == -1) return -1;
         
         var newSoundEmitter = pool.Get();
         newSoundEmitter.Init(pool.Release);
@@ -78,6 +67,7 @@ public class SoundManager : MonoBehaviour
             }
         }
 
+
         newSoundEmitter.AudioSource.clip = currentSound.clip;
         newSoundEmitter.AudioSource.outputAudioMixerGroup = currentMixer;
         newSoundEmitter.AudioSource.volume = sound.isVolumeRandom ? Random.Range(sound.randomVolume.x, sound.randomVolume.y) : sound.volume;
@@ -94,17 +84,26 @@ public class SoundManager : MonoBehaviour
 
         newSoundEmitter.AudioSource.Play();
 
-        if(!soundEmitters.Contains(newSoundEmitter)) soundEmitters.Add(newSoundEmitter);
+        if (!soundEmitters.ContainsValue(newSoundEmitter)) soundEmitters.Add(id, newSoundEmitter);
+        return id++;
+    }
+
+    public void Stop(int id)
+    {
+        if (!soundEmitters.ContainsKey(id) || !soundEmitters[id].isActiveAndEnabled) return;
+        soundEmitters[id].CancelInvoke();
+        soundEmitters[id].DestroySoundEmitter();
     }
 
     public void StopAll()
     {
-        for (int i = soundEmitters.Count - 1; i >= 0; i--)
-        {
-            if (!soundEmitters[i].isActiveAndEnabled) continue;
+        var keys = soundEmitters.Keys.ToArray().Reverse();
 
-            soundEmitters[i].CancelInvoke();
-            soundEmitters[i].DestroySoundEmitter();
+        foreach (var key in keys)
+        {
+            if (!soundEmitters[key].isActiveAndEnabled) continue;
+            soundEmitters[key].CancelInvoke();
+            soundEmitters[key].DestroySoundEmitter();
         }
     }
 
@@ -121,13 +120,15 @@ public class SoundManager : MonoBehaviour
         }
         if (currentMixer == null) return;
 
-        for (int i = soundEmitters.Count - 1; i >= 0; i--)
-        {
-            if (!soundEmitters[i].isActiveAndEnabled || 
-                soundEmitters[i].AudioSource.outputAudioMixerGroup != currentMixer) continue;
+        var keys = soundEmitters.Keys.ToArray().Reverse();
 
-            soundEmitters[i].CancelInvoke();
-            soundEmitters[i].DestroySoundEmitter();
+        foreach (var key in keys)
+        {
+            if (!soundEmitters[key].isActiveAndEnabled ||
+                soundEmitters[key].AudioSource.outputAudioMixerGroup != currentMixer) continue;
+
+            soundEmitters[key].CancelInvoke();
+            soundEmitters[key].DestroySoundEmitter();
         }
     }
 
@@ -189,7 +190,15 @@ public class SoundManager : MonoBehaviour
 
     private void OnDestroyFunction(SoundEmitter _soundEmitterToDestroy)
     {
-        soundEmitters.Remove(_soundEmitterToDestroy);
+        foreach (var item in soundEmitters)
+        {
+            if (item.Value == _soundEmitterToDestroy)
+            {
+                soundEmitters.Remove(item.Key);
+                break;
+            }
+        }
+
         Destroy(_soundEmitterToDestroy.gameObject);
     }
     #endregion 
