@@ -4,7 +4,7 @@ public class Entity : MonoBehaviour
 {
     [Header("Health")]
     [SerializeField] private int maxHealth;
-    private int currentHealth;
+    protected int currentHealth;
 
     [SerializeField] private GameData.Side side;
 

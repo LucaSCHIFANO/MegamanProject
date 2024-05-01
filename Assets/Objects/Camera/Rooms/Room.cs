@@ -72,6 +72,8 @@ public class Room : MonoBehaviour
         {
             if (transitions[i].transitionSide != TransitionSide.None) SetTransitionHitbox(transitions[i]);  
         }
+
+        SetRoomActive(false);
     }
 
     private void Start()
@@ -120,7 +122,14 @@ public class Room : MonoBehaviour
         isRoomActive = active;
         foreach (var item in roomTransitions)
         {
-          item.SetRoomActive(active);
+            item.SetRoomActive(active);
+        }
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            if(active)
+                transform.GetChild(i).GetComponent<ILinkedToRoom>()?.Enable();
+            else
+                transform.GetChild(i).GetComponent<ILinkedToRoom>()?.Disable();
         }
         
     }
