@@ -4,7 +4,7 @@ using UnityEngine;
 public class CameraMovement : MonoBehaviour
 {
     [Header("Camera")]
-    [SerializeField] private Transform target;
+    private Transform target;
     private Vector3 hiddenTarget;
 
     [SerializeField] private Vector3 offset;
@@ -36,6 +36,10 @@ public class CameraMovement : MonoBehaviour
         cameraSize = new Vector2(width, height);
 
         currentSpeed = speed;
+    }
+    private void Start()
+    {
+        target = LevelManager.Instance.Megaman.transform;
     }
 
 

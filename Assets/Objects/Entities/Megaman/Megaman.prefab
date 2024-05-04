@@ -95,7 +95,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: -0.044604033}
+  m_Offset: {x: 0, y: -0.0430032}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -106,7 +106,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.13, y: 0.20920807}
+  m_Size: {x: 0.13, y: 0.20600641}
   m_EdgeRadius: 0
 --- !u!1 &751684708718864566
 GameObject:
@@ -240,18 +240,18 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: -0.044604033}
+  m_Offset: {x: 0, y: -0.04294029}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.32, y: 0.32}
-    newSize: {x: 0.32, y: 0.32}
+    oldSize: {x: 0.48, y: 0.32}
+    newSize: {x: 0.48, y: 0.32}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.13, y: 0.20920807}
+  m_Size: {x: 0.13, y: 0.20588058}
   m_EdgeRadius: 0
 --- !u!61 &4774328286403552923
 BoxCollider2D:
@@ -285,18 +285,18 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: -0.085}
+  m_Offset: {x: 0, y: -0.08333624}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.32, y: 0.32}
-    newSize: {x: 0.32, y: 0.32}
+    oldSize: {x: 0.48, y: 0.32}
+    newSize: {x: 0.48, y: 0.32}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.2375, y: 0.1285}
+  m_Size: {x: 0.2375, y: 0.12517248}
   m_EdgeRadius: 0
 --- !u!114 &1747173923856472549
 MonoBehaviour:
@@ -393,7 +393,7 @@ MonoBehaviour:
   sr: {fileID: 8066897895788514397}
   boxCollider: {fileID: 7328245005353537571}
   slideBoxCollider: {fileID: 4774328286403552923}
-  defaulContactOffsetMultiplicator: 0
+  defaulContactOffsetMultiplicator: 0.4
   speed: 0.75
   preRunTime: 0.1
   jumpForce: 1.5
@@ -505,7 +505,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: -156112790, guid: 82cd51943d77fe040858d87ea83f70a6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

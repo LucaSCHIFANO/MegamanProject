@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using static Room;
 
 
 public class Room : MonoBehaviour
 {
-    public const float gridX = 2.4f;
-    public const float gridY = 1.8f;
+    private float gridX = GameData.gridX;
+    private float gridY = GameData.gridY;
 
     [Header("Room Postition")]
     [SerializeField] private Vector2Int position;
@@ -24,8 +23,8 @@ public class Room : MonoBehaviour
     [SerializeField] private List<Transition> transitions = new List<Transition>();
     private List<RoomTransition>roomTransitions = new List<RoomTransition>();
 
-    private float roomColliderThickness = 0.1f;
-    private BoxCollider2D transitionCollider;
+    [Space]
+    [SerializeField] private List<CheckPointRoom> checkPointRoom = new List<CheckPointRoom>();
 
     public enum TransitionSide
     {
@@ -40,9 +39,10 @@ public class Room : MonoBehaviour
     [SerializeField] private bool drawDebug;
     [SerializeField] private Color handlesColor = Color.red;
     [SerializeField] private Color handlesColliderColor = Color.green;
+    [SerializeField] private Color handlesCheckPointColor = Color.blue;
     [SerializeField] private float lineThickness = 3;
+    [SerializeField] private float checkPointlineThickness = 1.5f;
 
-    [SerializeField, HideInInspector] public List<Transition> Transitions { get => transitions;}
 
     #region GetSet
 
@@ -59,15 +59,16 @@ public class Room : MonoBehaviour
     public Vector2 WorldBottomLeftLimit { get => worldBottomLeftLimit + transform.position;}
     public Vector2 WorldTopRightLimit { get => worldTopRightLimit + transform.position;}
 
-
+    //Lists
+    [SerializeField, HideInInspector] public List<Transition> Transitions { get => transitions;}
+    public List<CheckPointRoom> CheckPointRoom { get => checkPointRoom; set => checkPointRoom = value; }
     #endregion
+
 
     private void Awake()
     {
         if (roomTransitionPrefab == null) return;
-
-        roomColliderThickness = GameData.roomColliderThickness;
-        
+      
         for (int i = 0; i < transitions.Count; i++)
         {
             if (transitions[i].transitionSide != TransitionSide.None) SetTransitionHitbox(transitions[i]);  
@@ -84,16 +85,16 @@ public class Room : MonoBehaviour
             switch (transition.TransitionSide)
             {
                 case TransitionSide.Left:
-                    nextRoomPosition += new Vector3(0.1f, 0);
+                    nextRoomPosition += new Vector3(GameData.roomColliderThickness, 0);
                     break;
                 case TransitionSide.Right:
-                    nextRoomPosition += new Vector3(-0.1f, 0);
+                    nextRoomPosition += new Vector3(-GameData.roomColliderThickness, 0);
                     break;
                 case TransitionSide.Bottom:
-                    nextRoomPosition += new Vector3(0, 0.1f);
+                    nextRoomPosition += new Vector3(0, GameData.roomColliderThickness);
                     break;
                 case TransitionSide.Top:
-                    nextRoomPosition += new Vector3(0, -0.1f);
+                    nextRoomPosition += new Vector3(0, -GameData.roomColliderThickness);
                     break;
             }
 
@@ -244,7 +245,7 @@ public class Room : MonoBehaviour
 [Serializable]
 public class Transition
 {
-    public TransitionSide transitionSide;
+    public Room.TransitionSide transitionSide;
     public int newRoomID;
 
     public bool onlyOnLadder = false;
@@ -253,5 +254,12 @@ public class Transition
 
     [Range(-1f, 1f)] public float offset = 0f;
     [Range(0.05f, 1)] public float size = 1f;
+
+}
+
+[Serializable]
+public class CheckPointRoom
+{
+    public Vector2Int checkPointPosition;
 
 }

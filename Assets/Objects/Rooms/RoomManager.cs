@@ -4,6 +4,9 @@ using static Room;
 
 public class RoomManager : MonoBehaviour
 {
+    private float gridX = GameData.gridX;
+    private float gridY = GameData.gridY;
+
     [Header("Rooms")]
     [SerializeField] private List<Room> rooms= new List<Room>();
     private Dictionary<Vector2Int, Room> roomGrid = new Dictionary<Vector2Int, Room>();
@@ -35,14 +38,19 @@ public class RoomManager : MonoBehaviour
 
     private void Start()
     {
+        SetCameraRooWithMegamanPosition();
+    }
+
+    public void SetCameraRooWithMegamanPosition()
+    {
         currentCamera = CameraMovement.Instance;
 
-        if(currentCamera != null)
+        if (currentCamera != null)
         {
             int roomId = GetAdjacentId(worldPositionToRoomPosition(LevelManager.Instance.Megaman.transform.position), TransitionSide.None);
             if (roomId >= 0 && roomId < rooms.Count) SetNewRoom(roomId, false);
             else SetNewRoom(0, false);
-            
+
         }
     }
 
