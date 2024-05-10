@@ -15,6 +15,9 @@ public class LevelManager : MonoBehaviour
     private Transform currentSpawnPoint;
     private RoomManager roomManager;
 
+    [Header("UI")]
+    [SerializeField] private Animator readyAnimator;
+
 
     private static LevelManager _instance = null;
 
@@ -40,7 +43,9 @@ public class LevelManager : MonoBehaviour
     public void Restart()
     {
         megaman.transform.position = currentSpawnPoint.position;
+        megaman.Restart();
         roomManager.SetCameraRooWithMegamanPosition();
+        readyAnimator.Play(0);
     }
 
     private void Update()

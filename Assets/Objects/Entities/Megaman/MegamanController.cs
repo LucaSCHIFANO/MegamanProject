@@ -22,6 +22,7 @@ public class MegamanController : Entity, IBulletEmiter
     private Vector2 currentJoystickPosition;
     private bool isCurrentlyGrounded;
     private MegamanState state;
+    private bool isInit = false;
 
     private bool joystickReset = true;
     [SerializeField] private float preRunTime;
@@ -84,6 +85,7 @@ public class MegamanController : Entity, IBulletEmiter
     private bool isRunningAnim;
     private bool isShootingAnim;
     private bool lastShootingAnim;
+    private string defaultAnimationClip;
 
     public bool IsClimbing { get => isClimbing;}
 
@@ -104,6 +106,20 @@ public class MegamanController : Entity, IBulletEmiter
 
         ladderBoundsOffset = currentBoxCollider.size.y / 3f;
         ladderExitPositionOffset = currentBoxCollider.size.y / 2f;
+
+        defaultAnimationClip = animator.GetCurrentAnimatorClipInfo(0)[0].clip.name;
+    }
+
+    public void Restart()
+    {
+        animator.Play(defaultAnimationClip);
+        rb.velocity = Vector2.zero;
+        isInit = false;
+    }
+
+    public void Init()
+    {
+        isInit = true;
     }
 
     void Start()
@@ -114,6 +130,8 @@ public class MegamanController : Entity, IBulletEmiter
 
     private void FixedUpdate()
     {
+        if (!isInit) return;
+
         if (state == MegamanState.CanMove) 
         {
             Climb();
@@ -123,6 +141,8 @@ public class MegamanController : Entity, IBulletEmiter
 
     void Update()
     {
+        if (!isInit) return;
+
         isCurrentlyGrounded = IsGrounded();
 
         switch (state)
