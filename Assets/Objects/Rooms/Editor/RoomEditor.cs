@@ -1,6 +1,7 @@
 using Codice.Client.Commands;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEditor.TerrainTools;
@@ -50,7 +51,7 @@ public class RoomEditor : Editor
 
         room.gameObject.transform.position = room.roomPositionToWorldPosition(m_Position.vector2IntValue);
 
-
+        #region GetRoomBounds
         m_LocalBottomLeftLimit.vector3Value = room.roomBoundPositionToWorldPosition(m_RoomBottomLeftLimit.vector2IntValue, true);
         m_LocalTopRightLimit.vector3Value = room.roomBoundPositionToWorldPosition(m_RoomTopRightLimit.vector2IntValue, false);
 
@@ -59,6 +60,7 @@ public class RoomEditor : Editor
 
         var bottomRightLimit = new Vector3(topRightLimit.x, bottomLeftLimit.y, 0);
         var topLeftLimit = new Vector3(bottomLeftLimit.x, topRightLimit.y, 0);
+        #endregion
 
 
 
@@ -71,7 +73,7 @@ public class RoomEditor : Editor
             Handles.DrawLine(topRightLimit, bottomRightLimit, m_LineThickness.floatValue);
             Handles.DrawLine(bottomRightLimit, bottomLeftLimit, m_LineThickness.floatValue);
 
-
+            #region Transitions
             if (room.Transitions.Count > 0)
             {
                 Handles.color = m_HandlesColliderColor.colorValue;
@@ -96,7 +98,9 @@ public class RoomEditor : Editor
                 }
 
             }
+            #endregion
 
+            #region CheckPoints
             if (room.CheckPointRoom.Count > 0)
             {
                 Handles.color = m_HandlesCheckPointColor.colorValue;
@@ -125,14 +129,50 @@ public class RoomEditor : Editor
                     var bottomRightCollider = new Vector2(centralPosition.x + size.x, centralPosition.y - size.y);
                     var topLeftCollider = new Vector2(centralPosition.x - size.x, centralPosition.y + size.y);
 
+                    var minimumHeight = new Vector2(0, GameData.gridY * room.CheckPointRoom[i].minimumHeight);
+
                     Handles.DrawLine(bottomLeftCollider, topLeftCollider, m_CheckPointLineThickness.floatValue);
                     Handles.DrawLine(topLeftCollider, topRightCollider, m_CheckPointLineThickness.floatValue);
                     Handles.DrawLine(topRightCollider, bottomRightCollider, m_CheckPointLineThickness.floatValue);
                     Handles.DrawLine(bottomRightCollider, bottomLeftCollider, m_CheckPointLineThickness.floatValue);
 
+                    Handles.DrawLine(bottomRightCollider + minimumHeight, bottomLeftCollider + minimumHeight, m_CheckPointLineThickness.floatValue);
+
+                    var centralOffset = new Vector3(-GameData.gridX / 2 + GameData.gridX * room.CheckPointRoom[i].offset, GameData.gridY / 2, 0);
+                    var rayOrigin = centralPosition + centralOffset;
+                    LayerMask mask = LayerMask.GetMask("Ground");
+                    List<RaycastHit2D> hits = Physics2D.RaycastAll(rayOrigin, Vector2.down, GameData.gridY, mask).ToList();
+                    hits.Reverse();
+                    Vector2 lastPoint = Vector2.negativeInfinity;
+
+                    for (int j = 0; j < hits.Count; j++)
+                    {
+
+                        var collider = Physics2D.OverlapBox(hits[j].point + new Vector2(0, GameData.megamanSizeY / 2f + 0.05f),
+                            new Vector2(GameData.megamanSizeX, GameData.megamanSizeY), 0, mask);
+                        if (collider == null)
+                        {
+                            lastPoint = hits[j].point;
+                            if (lastPoint.y >= bottomLeftCollider.y + minimumHeight.y)
+                            {
+                                Handles.DrawWireCube(lastPoint + new Vector2(0, GameData.megamanSizeY / 2),
+                                    new Vector3(GameData.megamanSizeX, GameData.megamanSizeY, 0));
+                                room.CheckPointRoom[i].spawnPointPosition = lastPoint + new Vector2(0, GameData.megamanSizeY / 2);
+                                return;
+                            }
+                        }
+                        
+                    }
+
+                    if (lastPoint == Vector2.negativeInfinity)
+                        return;
+
+                    Handles.DrawWireCube(lastPoint + new Vector2(0, GameData.megamanSizeY / 2),
+                                    new Vector3(GameData.megamanSizeX, GameData.megamanSizeY, 0));
                 }
 
             }
+            #endregion
         }
 
         PrefabUtility.RecordPrefabInstancePropertyModifications(room);
@@ -145,6 +185,7 @@ public class RoomEditor : Editor
 
         DrawPropertiesExcluding(serializedObject, "handlesColor", "handlesColliderColor", "lineThickness", "handlesCheckPointColor", "checkPointlineThickness");
 
+        #region ClampRoomBounds
         if (top != m_RoomTopRightLimit.vector2IntValue)
         {
             var TopX = Mathf.Clamp(
@@ -175,6 +216,7 @@ public class RoomEditor : Editor
             m_RoomBottomLeftLimit.vector2IntValue = new Vector2Int(BotX, BotY);
             OnSceneGUI();
         }
+        #endregion
 
         if (m_DrawDebug.boolValue) 
         {
@@ -202,26 +244,27 @@ public class TransitionEditor : PropertyDrawer
         EditorGUI.indentLevel = 0;
 
         var transitionSideRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
+        var transitionSide = property.FindPropertyRelative("transitionSide");
+        
         var onlyOnLadderRect = new Rect(position.x, position.y + 20f, position.width, EditorGUIUtility.singleLineHeight);
-
+        var onlyOnLadder = property.FindPropertyRelative("onlyOnLadder");
 
         var isColliderReducedRect = new Rect(position.x, position.y + 40f, position.width, EditorGUIUtility.singleLineHeight);
-        var offsetRect = new Rect(position.x, position.y + 60f, position.width, EditorGUIUtility.singleLineHeight);
-        var sizeRect = new Rect(position.x, position.y + 80f, position.width, EditorGUIUtility.singleLineHeight);
-
-        var transitionSide = property.FindPropertyRelative("transitionSide");
-        var onlyOnLadder = property.FindPropertyRelative("onlyOnLadder");
         var isColliderReduced = property.FindPropertyRelative("isColliderReduced");
-        var offset = property.FindPropertyRelative("offset");
-        var size = property.FindPropertyRelative("size");
-
 
         transitionSide.intValue = EditorGUI.Popup(transitionSideRect, "Transition side", transitionSide.intValue, transitionSide.enumNames);
         EditorGUI.PropertyField(onlyOnLadderRect, onlyOnLadder);
         EditorGUI.PropertyField(isColliderReducedRect, isColliderReduced);
+       
 
         if (isColliderReduced.boolValue)
         {
+            var offsetRect = new Rect(position.x, position.y + 60f, position.width, EditorGUIUtility.singleLineHeight);
+            var offset = property.FindPropertyRelative("offset");
+       
+            var sizeRect = new Rect(position.x, position.y + 80f, position.width, EditorGUIUtility.singleLineHeight);
+            var size = property.FindPropertyRelative("size");
+            
             EditorGUI.PropertyField(offsetRect, offset);
             EditorGUI.PropertyField(sizeRect, size);
         }
@@ -248,12 +291,21 @@ public class CheckPointRoomEditor : PropertyDrawer
         var checkPointPositionRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
         var checkPointPosition = property.FindPropertyRelative("checkPointPosition");
 
+        var offsetRect = new Rect(position.x, position.y + 20f, position.width, EditorGUIUtility.singleLineHeight);
+        var offset = property.FindPropertyRelative("offset");
+
+        var minHeightRect = new Rect(position.x, position.y + 40f, position.width, EditorGUIUtility.singleLineHeight);
+        var minHeight = property.FindPropertyRelative("minimumHeight");
+
         EditorGUI.PropertyField(checkPointPositionRect, checkPointPosition);
+        EditorGUI.PropertyField(offsetRect, offset);
+        EditorGUI.PropertyField(minHeightRect, minHeight);
         EditorGUI.EndProperty();
     }
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
-        return (20 - EditorGUIUtility.singleLineHeight) + (EditorGUIUtility.singleLineHeight * 1f);
+        return (20 - EditorGUIUtility.singleLineHeight) + (EditorGUIUtility.singleLineHeight * 3f);
     }
+
 }

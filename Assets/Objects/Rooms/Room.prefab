@@ -51,7 +51,11 @@ MonoBehaviour:
   worldTopRightLimit: {x: 3.6000001, y: 0.9, z: 0}
   roomTransitionPrefab: {fileID: 8291192240538636720, guid: c8860670251770945b747fd88814afe4, type: 3}
   transitions: []
+  roomCheckPointPrefab: {fileID: 5459170903088802338, guid: f872f0a26925968469c10b443310ca69, type: 3}
+  checkPoint: []
   drawDebug: 0
   handlesColor: {r: 1, g: 0, b: 0, a: 1}
   handlesColliderColor: {r: 0, g: 1, b: 0, a: 1}
+  handlesCheckPointColor: {r: 0, g: 0, b: 1, a: 1}
   lineThickness: 3
+  checkPointlineThickness: 1.5

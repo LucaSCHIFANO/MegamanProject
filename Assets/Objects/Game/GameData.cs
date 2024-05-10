@@ -7,6 +7,9 @@ public class GameData
     public const float gridX = 2.4f;
     public const float gridY = 1.8f;
 
+    public const float megamanSizeX = 0.2f;
+    public const float megamanSizeY = 0.24f;
+
     public enum Side
     {
         Player,

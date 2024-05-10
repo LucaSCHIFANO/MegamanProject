@@ -12,6 +12,7 @@ public class LevelManager : MonoBehaviour
 
     [Header("Spawn")]
     [SerializeField] private Transform spawnPoint;
+    private Transform currentSpawnPoint;
     private RoomManager roomManager;
 
 
@@ -27,7 +28,8 @@ public class LevelManager : MonoBehaviour
         if (_instance != null) return; 
         
         _instance = this;
-        megaman = Instantiate(megamanPrefab, spawnPoint.position, spawnPoint.rotation);
+        currentSpawnPoint = spawnPoint;
+        megaman = Instantiate(megamanPrefab, currentSpawnPoint.position, currentSpawnPoint.rotation);
     }
 
     private void Start()
@@ -37,7 +39,7 @@ public class LevelManager : MonoBehaviour
 
     public void Restart()
     {
-        megaman.transform.position = spawnPoint.position;
+        megaman.transform.position = currentSpawnPoint.position;
         roomManager.SetCameraRooWithMegamanPosition();
     }
 
@@ -45,6 +47,12 @@ public class LevelManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.R))
             Restart();
+    }
+
+    public void SetNewSpawnPoint(Transform newSpawnPoint)
+    {
+        if (spawnPoint == null) return;
+        currentSpawnPoint = newSpawnPoint;
     }
 
 }

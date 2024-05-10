@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 
 public class Room : MonoBehaviour
@@ -24,7 +25,9 @@ public class Room : MonoBehaviour
     private List<RoomTransition>roomTransitions = new List<RoomTransition>();
 
     [Space]
-    [SerializeField] private List<CheckPointRoom> checkPointRoom = new List<CheckPointRoom>();
+    [Header("Check Points")]
+    [SerializeField] private Checkpoint roomCheckPointPrefab;
+    [SerializeField] private List<CheckPointRoom> checkPoint = new List<CheckPointRoom>();
 
     public enum TransitionSide
     {
@@ -61,7 +64,7 @@ public class Room : MonoBehaviour
 
     //Lists
     [SerializeField, HideInInspector] public List<Transition> Transitions { get => transitions;}
-    public List<CheckPointRoom> CheckPointRoom { get => checkPointRoom; set => checkPointRoom = value; }
+    public List<CheckPointRoom> CheckPointRoom { get => checkPoint; set => checkPoint = value; }
     #endregion
 
 
@@ -100,6 +103,17 @@ public class Room : MonoBehaviour
 
             var manager = RoomManager.Instance;
             transition.NewRoomID = manager.GetAdjacentId(manager.worldPositionToRoomPosition(nextRoomPosition),transition.TransitionSide);
+        }
+
+        foreach (var checkPoint in checkPoint)
+        {
+            var newCheckPoint = Instantiate(roomCheckPointPrefab, roomPositionToWorldPosition(checkPoint.checkPointPosition), transform.rotation, transform);
+
+            newCheckPoint.SetRespawnPoint(checkPoint.spawnPointPosition);
+ 
+            var cpCollider = newCheckPoint.GetComponent<BoxCollider2D>();
+            cpCollider.isTrigger = true;
+            cpCollider.size = new Vector2(gridX, gridY);
         }
     }
 
@@ -261,5 +275,7 @@ public class Transition
 public class CheckPointRoom
 {
     public Vector2Int checkPointPosition;
-
+    [Range(0f, 1f)] public float offset = 0.5f;
+    [Range(0f, 1f)] public float minimumHeight = 0f;
+    [HideInInspector] public Vector2 spawnPointPosition;
 }
