@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -79,6 +80,15 @@ public class MegamanController : Entity, IBulletEmiter
     private float ladderBoundsOffset;
     private float ladderExitPositionOffset;
 
+    [Header("Damage")]
+    [SerializeField] private float invulnerabilityTime;
+    private float currentInvulnerabilityTime;
+
+    [SerializeField] private float recoilDamageSpeed;
+    [SerializeField] private float recoilDamageTime;
+    private float currentRecoilDamageTime;
+
+    [SerializeField] private float numberOfBlinkPerSec;
 
     [Header("Death")]
     [SerializeField] private GameObject deathParticle;
@@ -115,6 +125,7 @@ public class MegamanController : Entity, IBulletEmiter
         ladderExitPositionOffset = currentBoxCollider.size.y / 2f;
 
         defaultAnimationClip = animator.GetCurrentAnimatorClipInfo(0)[0].clip;
+        currentHealth = maxHealth;
     }
 
     public void Restart()
@@ -149,8 +160,12 @@ public class MegamanController : Entity, IBulletEmiter
     void Update()
     { 
         if (!isInit) return;
+
+        currentInvulnerabilityTime -= Time.deltaTime;
+        currentRecoilDamageTime -= Time.deltaTime;
+
         if (Input.GetKeyDown(KeyCode.K))
-            ReduceLife(100);
+            ReduceLife(1);
 
         isCurrentlyGrounded = IsGrounded();
 
@@ -291,6 +306,10 @@ public class MegamanController : Entity, IBulletEmiter
 
         float horizontalMovement = joystickX * speed;
         float verticalMovement = rb.velocity.y;
+
+        if(currentRecoilDamageTime > 0)
+            horizontalMovement = sr.flipX ? -recoilDamageSpeed : recoilDamageSpeed;
+        
 
 
         if (joystickReset && joystickX != 0)
@@ -544,67 +563,98 @@ public class MegamanController : Entity, IBulletEmiter
     private void UpdateAnimation()
     {
         string animName = "";
-        if (isClimbing)
+        if (currentRecoilDamageTime > 0)
         {
-            if (transform.position.y > closeLadder.TopHandler.position.y) animName = "Megaman_Climb_TopLadder";
-            else animName = "Megaman_Climb";
+            animName = "Megaman_Damage";
         }
         else
         {
-            if (currentJoystickPosition.x < 0f) sr.flipX = false;
-            else if (currentJoystickPosition.x > 0f) sr.flipX = true;
-
-            if (isCurrentlyGrounded)
+            if (isClimbing)
             {
-                if (currentPreRunTime > 0)
-                {
-                    animName = "Megaman_PreRun";
-                }
-                else if (Mathf.Abs(rb.velocity.x) > 0.1f)
-                {
-                    if (isSliding)
-                    {
-                        isRunningAnim = false;
-                        animName = "Megaman_Slide";
-                    }
-                    else if (currentPreRunTime <= 0f) animName = "Megaman_Run";
-                }
-                else
-                {
-                    animName = "Megaman_Idle";
-                    isRunningAnim = false;
-                }
+                if (transform.position.y > closeLadder.TopHandler.position.y) animName = "Megaman_Climb_TopLadder";
+                else animName = "Megaman_Climb";
             }
             else
             {
-                isRunningAnim = false;
-                animName = "Megaman_Jump";
-            }
-        }
+                if (currentJoystickPosition.x < 0f) sr.flipX = false;
+                else if (currentJoystickPosition.x > 0f) sr.flipX = true;
 
-        if (currentShootAnimDuration > 0f)
-        {
-            animName += "_Shoot";
-            currentShootAnimDuration -= Time.deltaTime;
-            isShootingAnim = true;
+                if (isCurrentlyGrounded)
+                {
+                    if (currentPreRunTime > 0)
+                    {
+                        animName = "Megaman_PreRun";
+                    }
+                    else if (Mathf.Abs(rb.velocity.x) > 0.1f)
+                    {
+                        if (isSliding)
+                        {
+                            isRunningAnim = false;
+                            animName = "Megaman_Slide";
+                        }
+                        else if (currentPreRunTime <= 0f) animName = "Megaman_Run";
+                    }
+                    else
+                    {
+                        animName = "Megaman_Idle";
+                        isRunningAnim = false;
+                    }
+                }
+                else
+                {
+                    isRunningAnim = false;
+                    animName = "Megaman_Jump";
+                }
+            }
+
+            if (currentShootAnimDuration > 0f)
+            {
+                animName += "_Shoot";
+                currentShootAnimDuration -= Time.deltaTime;
+                isShootingAnim = true;
+            }
+            else isShootingAnim = false;
+
         }
-        else isShootingAnim = false;
 
         if (animName != "")
         {
+            Debug.Log(animName);
             if (lastShootingAnim != isShootingAnim)
             {
                 lastShootingAnim = isShootingAnim;
-                if(isClimbing) animator.Play(animName);
+                if (isClimbing) animator.Play(animName);
                 else animator.Play(animName, 0, animator.GetCurrentAnimatorStateInfo(0).normalizedTime % 1);
             }
             else
             {
-                if(isClimbing && Mathf.Abs(rb.velocity.y) == 0) animator.speed = 0;
+                if (isClimbing && Mathf.Abs(rb.velocity.y) == 0) animator.speed = 0;
                 else animator.speed = 1;
                 animator.Play(animName);
             }
         }
+    }
+
+    private IEnumerator SpriteBlink()
+    {
+        yield return new WaitForSeconds(recoilDamageTime);
+
+        float currentBlinkTime = 0f;
+        float trueBlinkTime = 0f;
+
+        while (currentInvulnerabilityTime > 0)
+        {
+            currentBlinkTime += Time.deltaTime * numberOfBlinkPerSec;
+            if(currentBlinkTime % 1 >= 0.5f)
+                trueBlinkTime = 1f;
+            else trueBlinkTime = 0f;
+
+            sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, trueBlinkTime);
+
+            yield return null;
+        }
+
+        sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 1);
     }
 
     #endregion
@@ -663,7 +713,7 @@ public class MegamanController : Entity, IBulletEmiter
     #endregion
 
 
-    #region Health
+    #region Health + Recoil
     public override void ReduceLife(int damage)
     {
         currentHealth -= damage;
@@ -673,6 +723,7 @@ public class MegamanController : Entity, IBulletEmiter
             Debug.Log($"{gameObject.name} is dead");
             Death();
         }
+        else damageRecoil();
     }
 
     private void Death()
@@ -682,6 +733,19 @@ public class MegamanController : Entity, IBulletEmiter
         rb.velocity = Vector2.zero;
         sr.enabled = false;
         isInit = false;
+    }
+
+    private void damageRecoil()
+    {
+        StopClimbing();
+        isShootingAnim = false;
+        isJumping = false;
+        isSliding = false;
+
+        // add recoilDamageTime to invulnerabilityTime because invulnerabilityTime is only the time when megaman can move
+        currentInvulnerabilityTime = invulnerabilityTime + recoilDamageTime;
+        currentRecoilDamageTime = recoilDamageTime;
+        StartCoroutine(SpriteBlink());
     }
     #endregion
 }
