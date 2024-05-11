@@ -158,14 +158,11 @@ public class MegamanController : Entity, IBulletEmiter
     }
 
     void Update()
-    { 
+    {
         if (!isInit) return;
 
         currentInvulnerabilityTime -= Time.deltaTime;
         currentRecoilDamageTime -= Time.deltaTime;
-
-        if (Input.GetKeyDown(KeyCode.K))
-            ReduceLife(1);
 
         isCurrentlyGrounded = IsGrounded();
 
@@ -184,7 +181,11 @@ public class MegamanController : Entity, IBulletEmiter
         }
 
         if (IsTouchingRoof()) isJumping = false;
-        
+
+
+        if (Input.GetKeyDown(KeyCode.K))
+            ReduceLife(1);
+
     }
 
 
@@ -619,7 +620,6 @@ public class MegamanController : Entity, IBulletEmiter
 
         if (animName != "")
         {
-            Debug.Log(animName);
             if (lastShootingAnim != isShootingAnim)
             {
                 lastShootingAnim = isShootingAnim;
@@ -730,7 +730,10 @@ public class MegamanController : Entity, IBulletEmiter
     {
         onGameOver?.Invoke();
         Instantiate(deathParticle, transform.position, Quaternion.identity);
+
         rb.velocity = Vector2.zero;
+        rb.gravityScale = 0f;
+
         sr.enabled = false;
         isInit = false;
     }

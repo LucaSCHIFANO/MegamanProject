@@ -415,7 +415,7 @@ MonoBehaviour:
   invulnerabilityTime: 1
   recoilDamageSpeed: 0.3
   recoilDamageTime: 0.5
-  numberOfBlink: 5
+  numberOfBlinkPerSec: 5
   deathParticle: {fileID: 4365911078269278476, guid: 4fbb8971b2714cb4eb1720c44c3f9523, type: 3}
 --- !u!95 &1881259996845250026
 Animator:
