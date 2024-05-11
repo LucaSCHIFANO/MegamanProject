@@ -80,14 +80,21 @@ public class MegamanController : Entity, IBulletEmiter
     private float ladderExitPositionOffset;
 
 
+    [Header("Death")]
+    [SerializeField] private GameObject deathParticle;
+    public delegate void OnGameOver();
+    public event OnGameOver onGameOver;
 
     [Header("Animation")]
     private bool isRunningAnim;
     private bool isShootingAnim;
     private bool lastShootingAnim;
-    private string defaultAnimationClip;
+    private AnimationClip defaultAnimationClip;
+
+
 
     public bool IsClimbing { get => isClimbing;}
+    public AnimationClip DefaultAnimationClip { get => defaultAnimationClip; }
 
     enum MegamanState
     {
@@ -107,13 +114,13 @@ public class MegamanController : Entity, IBulletEmiter
         ladderBoundsOffset = currentBoxCollider.size.y / 3f;
         ladderExitPositionOffset = currentBoxCollider.size.y / 2f;
 
-        defaultAnimationClip = animator.GetCurrentAnimatorClipInfo(0)[0].clip.name;
+        defaultAnimationClip = animator.GetCurrentAnimatorClipInfo(0)[0].clip;
     }
 
     public void Restart()
     {
-        animator.Play(defaultAnimationClip);
-        rb.velocity = Vector2.zero;
+        animator.Play(defaultAnimationClip.name);
+        sr.enabled = true;
         isInit = false;
     }
 
@@ -140,8 +147,10 @@ public class MegamanController : Entity, IBulletEmiter
     }
 
     void Update()
-    {
+    { 
         if (!isInit) return;
+        if (Input.GetKeyDown(KeyCode.K))
+            ReduceLife(100);
 
         isCurrentlyGrounded = IsGrounded();
 
@@ -651,5 +660,28 @@ public class MegamanController : Entity, IBulletEmiter
         }
     }
 
+    #endregion
+
+
+    #region Health
+    public override void ReduceLife(int damage)
+    {
+        currentHealth -= damage;
+        Debug.Log($"{gameObject.name} take {damage} damage!");
+        if (currentHealth <= 0)
+        {
+            Debug.Log($"{gameObject.name} is dead");
+            Death();
+        }
+    }
+
+    private void Death()
+    {
+        onGameOver?.Invoke();
+        Instantiate(deathParticle, transform.position, Quaternion.identity);
+        rb.velocity = Vector2.zero;
+        sr.enabled = false;
+        isInit = false;
+    }
     #endregion
 }

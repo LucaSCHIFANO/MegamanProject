@@ -33,6 +33,7 @@ public class LevelManager : MonoBehaviour
         _instance = this;
         currentSpawnPoint = spawnPoint;
         megaman = Instantiate(megamanPrefab, currentSpawnPoint.position, currentSpawnPoint.rotation);
+        megaman.onGameOver += OnMegamanDeath;
     }
 
     private void Start()
@@ -40,11 +41,16 @@ public class LevelManager : MonoBehaviour
         roomManager = RoomManager.Instance;
     }
 
+    private void OnMegamanDeath()
+    {
+        Invoke(nameof(Restart), GameData.megamanRespawnTime);
+    }
+
     public void Restart()
     {
         megaman.transform.position = currentSpawnPoint.position;
         megaman.Restart();
-        roomManager.SetCameraRooWithMegamanPosition();
+        roomManager.SetCameraRoomWithMegamanPosition();
         readyAnimator.Play(0);
     }
 
@@ -59,5 +65,4 @@ public class LevelManager : MonoBehaviour
         if (spawnPoint == null) return;
         currentSpawnPoint = newSpawnPoint;
     }
-
 }

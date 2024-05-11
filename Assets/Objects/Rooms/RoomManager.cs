@@ -38,10 +38,10 @@ public class RoomManager : MonoBehaviour
 
     private void Start()
     {
-        SetCameraRooWithMegamanPosition();
+        SetCameraRoomWithMegamanPosition();
     }
 
-    public void SetCameraRooWithMegamanPosition()
+    public void SetCameraRoomWithMegamanPosition()
     {
         currentCamera = CameraMovement.Instance;
 
@@ -51,6 +51,7 @@ public class RoomManager : MonoBehaviour
             if (roomId >= 0 && roomId < rooms.Count) SetNewRoom(roomId, false);
             else SetNewRoom(0, false);
 
+            StartCoroutine(currentCamera.WaitToActivateRoom(LevelManager.Instance.Megaman.DefaultAnimationClip.length));
         }
     }
 

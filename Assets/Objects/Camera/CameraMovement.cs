@@ -72,6 +72,13 @@ public class CameraMovement : MonoBehaviour
         
     }
 
+    public IEnumerator WaitToActivateRoom(float timeToWait)
+    {
+        currentRoom.SetRoomActive(false);
+        yield return new WaitForSeconds(timeToWait);
+        currentRoom.SetRoomActive(true);
+    }
+
     IEnumerator RoomTransition()
     {
         currentSpeed = Vector2.Distance(transform.position, hiddenTarget) / GameData.roomTransitionTime;

@@ -10,6 +10,8 @@ public class GameData
     public const float megamanSizeX = 0.2f;
     public const float megamanSizeY = 0.24f;
 
+    public const float megamanRespawnTime = 3f;
+
     public enum Side
     {
         Player,
