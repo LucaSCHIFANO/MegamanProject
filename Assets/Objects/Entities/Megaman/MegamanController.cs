@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -106,7 +105,7 @@ public class MegamanController : Entity, IBulletEmiter
     public bool IsClimbing { get => isClimbing;}
     public AnimationClip DefaultAnimationClip { get => defaultAnimationClip; }
 
-    enum MegamanState
+    public enum MegamanState
     {
         CanMove,
         MovementLock,
@@ -240,16 +239,7 @@ public class MegamanController : Entity, IBulletEmiter
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("RoomTransition"))
-        {
-            var roomTransitionComponent = collision.GetComponent<RoomTransition>();
-            if (roomTransitionComponent.NewRoomID == -1) return;
-
-            if (!roomTransitionComponent.OnlyOnLadder || IsClimbing)
-                StartCoroutine(RoomTransition(collision.GetComponent<RoomTransition>()));
-            else currentRoomTransition = roomTransitionComponent;
-        }
-        else if (collision.CompareTag("Ladder"))
+         if (collision.CompareTag("Ladder"))
         {
             isCloseToLadder = true;
             closeLadder = collision.gameObject.GetComponent<Ladder>();
@@ -263,10 +253,6 @@ public class MegamanController : Entity, IBulletEmiter
             isCloseToLadder = false;
             closeLadder = null;
         }
-        else if (collision.CompareTag("RoomTransition"))
-        {
-            currentRoomTransition = null;
-        }
     }
 
 
@@ -275,7 +261,7 @@ public class MegamanController : Entity, IBulletEmiter
 
     #region Movement
 
-    private void ChangeState(MegamanState _state)
+    public void ChangeState(MegamanState _state)
     {
         state = _state;
 
@@ -475,15 +461,6 @@ public class MegamanController : Entity, IBulletEmiter
                 if (transform.position.y > closeLadder.TopHandler.position.y) positionOnLadder -= ladderExitPositionOffset;
                 else if (transform.position.y < closeLadder.BotHandler.position.y) positionOnLadder += ladderExitPositionOffset;
                 transform.position = new Vector3(closeLadder.transform.position.x, positionOnLadder, 0);
-
-                if (currentRoomTransition != null)
-                {
-                    animator.Play("Megaman_Climb");
-                    StartCoroutine(RoomTransition(currentRoomTransition));
-                    currentRoomTransition = null;
-                }
-
-
             }
         }
     }
@@ -507,31 +484,40 @@ public class MegamanController : Entity, IBulletEmiter
         transform.position = Vector2.MoveTowards(transform.position, roomTransitionTarget, transitionSpeed * Time.deltaTime);
     }
 
-    IEnumerator RoomTransition(RoomTransition roomTransition)
+    public IEnumerator RoomTransition(RoomTransition transition)
     {
-        ChangeState(MegamanState.RoomTransition);
-        switch (roomTransition.TransitionSide)
+        if (transition != null)
         {
-            case Room.TransitionSide.Left:
-                roomTransitionTarget = transform.position + new Vector3(-GameData.roomColliderThickness * GameData.roomTransitionDistance, 0, 0); 
-                break;
-            case Room.TransitionSide.Right:
-                roomTransitionTarget = transform.position + new Vector3(GameData.roomColliderThickness * GameData.roomTransitionDistance, 0, 0);
-                break;
-            case Room.TransitionSide.Bottom:
-                roomTransitionTarget = transform.position + new Vector3(0, -GameData.roomColliderThickness * GameData.roomTransitionDistance, 0);
-                break;
-            case Room.TransitionSide.Top:
-                roomTransitionTarget = transform.position + new Vector3(0, GameData.roomColliderThickness * GameData.roomTransitionDistance, 0);
-                break;
-            default:
-                break;
+            if(transition.OnlyOnLadder)
+                animator.Play("Megaman_Climb");
+            
+            ChangeState(MegamanState.RoomTransition);
+            switch (transition.TransitionSide)
+            {
+                case Room.TransitionSide.Left:
+                    roomTransitionTarget = transform.position + new Vector3(-GameData.roomColliderThickness * GameData.roomTransitionDistance, 0, 0);
+                    break;
+                case Room.TransitionSide.Right:
+                    roomTransitionTarget = transform.position + new Vector3(GameData.roomColliderThickness * GameData.roomTransitionDistance, 0, 0);
+                    break;
+                case Room.TransitionSide.Bottom:
+                    roomTransitionTarget = transform.position + new Vector3(0, -GameData.roomColliderThickness * GameData.roomTransitionDistance, 0);
+                    break;
+                case Room.TransitionSide.Top:
+                    roomTransitionTarget = transform.position + new Vector3(0, GameData.roomColliderThickness * GameData.roomTransitionDistance, 0);
+                    break;
+                default:
+                    break;
+            }
+            transitionSpeed = Vector2.Distance(transform.position, roomTransitionTarget) / GameData.roomTransitionTime;
+
+            if(transition.IsBossTransition)
+                yield return new WaitForSeconds(GameData.roomTransitionTime + transition.CurrentBossDoor.DoorAnimationLenght);
+            else 
+                yield return new WaitForSeconds(GameData.roomTransitionTime);
+
+            ChangeState(MegamanState.CanMove);
         }
-        transitionSpeed = Vector2.Distance(transform.position, roomTransitionTarget) / GameData.roomTransitionTime;
-
-        yield return new WaitForSeconds(GameData.roomTransitionTime);
-
-        ChangeState(MegamanState.CanMove);
     }
 
 

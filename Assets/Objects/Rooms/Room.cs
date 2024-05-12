@@ -123,11 +123,13 @@ public class Room : MonoBehaviour
         transitionGO.transform.position = GetColliderCentralPoint(transition);
         BoxCollider2D transitionCollider = transitionGO.GetComponent<BoxCollider2D>();
 
-        transitionGO.SetData(transition.transitionSide, transition.onlyOnLadder);
+        transitionGO.SetData(transition.transitionSide, transition.onlyOnLadder, transition.isBossTransition);
 
         transitionCollider.isTrigger = true;
         transitionCollider.size = GetColliderHeightWidth(transition);
         transitionCollider.enabled = false;
+        if (transition.isBossTransition)
+            transitionCollider.offset -= new Vector2(0, transition.size / 4); // Set the collider at the bottom of the door
 
         roomTransitions.Add(transitionGO);
     }
@@ -171,7 +173,7 @@ public class Room : MonoBehaviour
     {
         Vector3 centralTransitionPoint = Vector3.zero;
         float offset = 0f;
-        
+
         if(transition.isColliderReduced) offset = GetOffset(transition);
 
         switch (transition.transitionSide)
@@ -201,19 +203,24 @@ public class Room : MonoBehaviour
     {
         float offset = 0f;
         float trueTransitionOffset = (transition.offset + 1) / 2; // From -1,1 to 0, 1
+        float size = 0f;
+        if (transition.isBossTransition)
+            size = GameData.bossTransitionHeightEditor;
+        else
+            size = transition.size;
 
         switch (transition.transitionSide)
         {
             case TransitionSide.Left:
             case TransitionSide.Right:
                 var height = worldTopRightLimit.y - worldBottomLeftLimit.y;
-                offset = (height - (height * transition.size)) * 0.5f;
+                offset = (height - (height * size)) * 0.5f;
                 break;
 
             case TransitionSide.Bottom:
             case TransitionSide.Top:
                 var width = worldTopRightLimit.x - worldBottomLeftLimit.x;
-                offset = (width - (width * transition.size)) * 0.5f;
+                offset = (width - (width * size)) * 0.5f;
                 break;
 
         }
@@ -222,14 +229,19 @@ public class Room : MonoBehaviour
 
     }
 
-    public Vector2 GetColliderHeightWidth(Transition transition)
+    public Vector2 GetColliderHeightWidth(Transition transition, bool isEditor = false)
     {
-
         float witdh = 0.1f;
         float height = 0.1f;
         float sizeMultiplicator = 1f;
 
-        if (transition.isColliderReduced) sizeMultiplicator = transition.size;
+        if (transition.isBossTransition)
+        {
+            witdh *= 2;
+            height *= 2;
+            sizeMultiplicator = isEditor ? GameData.bossTransitionHeightEditor : GameData.bossTransitionHeight;
+        }
+        else if (transition.isColliderReduced) sizeMultiplicator = transition.size;
 
         switch (transition.transitionSide)
         {
@@ -263,6 +275,7 @@ public class Transition
     public int newRoomID;
 
     public bool onlyOnLadder = false;
+    public bool isBossTransition = false;
 
     public bool isColliderReduced = false;
 

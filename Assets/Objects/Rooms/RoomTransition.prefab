@@ -45,7 +45,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f566b7b13fccff4ea06379bfdff61cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  transitionSide: 0
   newRoomID: 0
+  onlyOnLadder: 0
+  bossDoorPrefab: {fileID: 1004623818269200183, guid: 9c1da7ba24ee7024bbe4c74d8867e071, type: 3}
 --- !u!61 &5162164191428069024
 BoxCollider2D:
   m_ObjectHideFlags: 0

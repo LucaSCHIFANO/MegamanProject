@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Diagnostics.SymbolStore;
 using UnityEngine;
 using static Room;
 
@@ -5,14 +7,20 @@ public class RoomTransition : MonoBehaviour
 {
     [Header("Transition Data")]
     [SerializeField] TransitionSide transitionSide;
-    [SerializeField] int newRoomID;
-    [SerializeField] bool onlyOnLadder;
+    int newRoomID;
+    bool onlyOnLadder;
+
+    [SerializeField] BossDoor bossDoorPrefab;
+    bool isBossTransition;
+    BossDoor currentBossDoor;
 
     private MegamanController megaman;
 
     public TransitionSide TransitionSide { get => transitionSide;}
     public bool OnlyOnLadder { get => onlyOnLadder;}
     public int NewRoomID { get => newRoomID; set => newRoomID = value; }
+    public bool IsBossTransition { get => isBossTransition; }
+    public BossDoor CurrentBossDoor { get => currentBossDoor; }
 
     private BoxCollider2D bc;
 
@@ -22,10 +30,14 @@ public class RoomTransition : MonoBehaviour
         newRoomID = -1;
     }
 
-    public void SetData(TransitionSide _transitionSide, bool _onlyOnLadder)
+    public void SetData(TransitionSide _transitionSide, bool _onlyOnLadder, bool _isBossTransition)
     {
         transitionSide = _transitionSide; 
         onlyOnLadder = _onlyOnLadder;
+        isBossTransition = _isBossTransition;
+        
+        if (isBossTransition)
+            currentBossDoor = Instantiate(bossDoorPrefab, transform);
     }
 
     public void SetRoomActive(bool active)
@@ -39,7 +51,7 @@ public class RoomTransition : MonoBehaviour
 
         if (megaman.IsClimbing)
         {
-            RoomManager.Instance.SetNewRoom(newRoomID, true);
+            TransitionNewRoom();
             megaman = null;
         }
     }
@@ -49,10 +61,28 @@ public class RoomTransition : MonoBehaviour
         if(collision.gameObject.tag == "Player")
         {
             var megamanController = collision.GetComponent<MegamanController>();
-            if (!onlyOnLadder || megamanController.IsClimbing) RoomManager.Instance.SetNewRoom(newRoomID, true);
+            if (!onlyOnLadder || megamanController.IsClimbing) TransitionNewRoom();
             else megaman = megamanController;
         }
     }
+
+    private void TransitionNewRoom()
+    {
+        if (isBossTransition)
+            StartCoroutine(BossTransition());
+        else RoomManager.Instance.SetNewRoom(newRoomID, this);
+    }
+    
+    private IEnumerator BossTransition()
+    {
+        currentBossDoor.Open();
+        LevelManager.Instance.Megaman.ChangeState(MegamanController.MegamanState.RoomTransition);
+        yield return new WaitForSeconds(currentBossDoor.DoorAnimationLenght);
+        RoomManager.Instance.SetNewRoom(newRoomID, this);
+        yield return new WaitForSeconds(GameData.roomTransitionTime);
+        currentBossDoor.Close();
+    }
+
 
     private void OnTriggerExit2D(Collider2D collision)
     {

@@ -57,9 +57,8 @@ public class CameraMovement : MonoBehaviour
         transform.position = Vector3.MoveTowards(transform.position, hiddenTarget + offset, currentSpeed * Time.deltaTime);
     }
 
-    public void ChangeRoom(Room newRoom, bool hasTransition)
+    public void ChangeRoom(Room newRoom, RoomTransition transition)
     {
-
         currentRoom?.SetRoomActive(false);
         currentRoom = newRoom;
         
@@ -67,7 +66,7 @@ public class CameraMovement : MonoBehaviour
         var htYpos = Mathf.Clamp(target.position.y, currentRoom.WorldBottomLeftLimit.y + cameraSize.y / 2, currentRoom.WorldTopRightLimit.y - cameraSize.y / 2);
         hiddenTarget = new Vector3(htXpos, htYpos, 0);
 
-        if (hasTransition) StartCoroutine(RoomTransition());
+        if (transition != null) StartCoroutine(RoomTransition(transition.CurrentBossDoor.DoorAnimationLenght));
         else currentRoom.SetRoomActive(true);
         
     }
@@ -79,11 +78,11 @@ public class CameraMovement : MonoBehaviour
         currentRoom.SetRoomActive(true);
     }
 
-    IEnumerator RoomTransition()
+    IEnumerator RoomTransition(float transitionDoorDuration = 0f)
     {
         currentSpeed = Vector2.Distance(transform.position, hiddenTarget) / GameData.roomTransitionTime;
 
-        yield return new WaitForSeconds(GameData.roomTransitionTime);
+        yield return new WaitForSeconds(GameData.roomTransitionTime + transitionDoorDuration);
 
         currentSpeed = speed;
         currentRoom.SetRoomActive(true);

@@ -1,5 +1,8 @@
 public class GameData
 {
+    public const float bossTransitionHeightEditor = 0.35f;
+    public const float bossTransitionHeight = 0.225f;
+
     public const float roomTransitionTime = 1.4f;
     public const float roomColliderThickness = 0.1f;
     public const float roomTransitionDistance = 4f;
