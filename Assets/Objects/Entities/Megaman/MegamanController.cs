@@ -160,15 +160,17 @@ public class MegamanController : Entity, IBulletEmiter
     {
         if (!isInit) return;
 
-        currentInvulnerabilityTime -= Time.deltaTime;
-        currentRecoilDamageTime -= Time.deltaTime;
 
         isCurrentlyGrounded = IsGrounded();
 
         switch (state)
         {
             case MegamanState.CanMove:
+
+                currentInvulnerabilityTime -= Time.deltaTime;
+                currentRecoilDamageTime -= Time.deltaTime;
                 Jump(); Slide(); UpdateAnimation();
+
                 break;
 
             case MegamanState.RoomTransition:
