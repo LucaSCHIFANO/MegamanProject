@@ -66,7 +66,7 @@ public class CameraMovement : MonoBehaviour
         var htYpos = Mathf.Clamp(target.position.y, currentRoom.WorldBottomLeftLimit.y + cameraSize.y / 2, currentRoom.WorldTopRightLimit.y - cameraSize.y / 2);
         hiddenTarget = new Vector3(htXpos, htYpos, 0);
 
-        if (transition != null) StartCoroutine(RoomTransition(transition.CurrentBossDoor.DoorAnimationLenght));
+        if (transition != null) StartCoroutine(RoomTransition(transition));
         else currentRoom.SetRoomActive(true);
         
     }
@@ -78,11 +78,14 @@ public class CameraMovement : MonoBehaviour
         currentRoom.SetRoomActive(true);
     }
 
-    IEnumerator RoomTransition(float transitionDoorDuration = 0f)
+    IEnumerator RoomTransition(RoomTransition transition)
     {
         currentSpeed = Vector2.Distance(transform.position, hiddenTarget) / GameData.roomTransitionTime;
 
-        yield return new WaitForSeconds(GameData.roomTransitionTime + transitionDoorDuration);
+        if (transition.CurrentBossDoor)
+            yield return new WaitForSeconds(GameData.roomTransitionTime + transition.CurrentBossDoor.DoorAnimationLenght);
+        else
+            yield return new WaitForSeconds(GameData.roomTransitionTime);
 
         currentSpeed = speed;
         currentRoom.SetRoomActive(true);

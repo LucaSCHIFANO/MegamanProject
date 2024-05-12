@@ -76,7 +76,7 @@ public class RoomTransition : MonoBehaviour
     private IEnumerator BossTransition()
     {
         currentBossDoor.Open();
-        LevelManager.Instance.Megaman.ChangeState(MegamanController.MegamanState.RoomTransition);
+        LevelManager.Instance.Megaman.ChangeState(MegamanController.MegamanState.WaitForRoomTransition);
         yield return new WaitForSeconds(currentBossDoor.DoorAnimationLenght);
         RoomManager.Instance.SetNewRoom(newRoomID, this);
         yield return new WaitForSeconds(GameData.roomTransitionTime);

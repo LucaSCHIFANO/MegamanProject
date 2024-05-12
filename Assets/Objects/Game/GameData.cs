@@ -5,7 +5,9 @@ public class GameData
 
     public const float roomTransitionTime = 1.4f;
     public const float roomColliderThickness = 0.1f;
+    public const float bossRoomColliderThickness = 0.2f;
     public const float roomTransitionDistance = 4f;
+    public const float bossRoomTransitionDistance = 2.5f;
 
     public const float gridX = 2.4f;
     public const float gridY = 1.8f;

@@ -231,14 +231,14 @@ public class Room : MonoBehaviour
 
     public Vector2 GetColliderHeightWidth(Transition transition, bool isEditor = false)
     {
-        float witdh = 0.1f;
-        float height = 0.1f;
+        float witdh = GameData.roomColliderThickness;
+        float height = GameData.roomColliderThickness;
         float sizeMultiplicator = 1f;
 
         if (transition.isBossTransition)
         {
-            witdh *= 2;
-            height *= 2;
+            witdh = GameData.bossRoomColliderThickness;
+            height = GameData.bossRoomColliderThickness;
             sizeMultiplicator = isEditor ? GameData.bossTransitionHeightEditor : GameData.bossTransitionHeight;
         }
         else if (transition.isColliderReduced) sizeMultiplicator = transition.size;

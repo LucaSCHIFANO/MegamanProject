@@ -32,7 +32,6 @@ public class MegamanController : Entity, IBulletEmiter
     [Header("RoomTransition")]
     private Vector2 roomTransitionTarget;
     private float transitionSpeed;
-    private RoomTransition currentRoomTransition;
 
 
     [Header("Jump")]
@@ -109,6 +108,7 @@ public class MegamanController : Entity, IBulletEmiter
     {
         CanMove,
         MovementLock,
+        WaitForRoomTransition,
         RoomTransition,
     }
 
@@ -169,9 +169,6 @@ public class MegamanController : Entity, IBulletEmiter
         {
             case MegamanState.CanMove:
                 Jump(); Slide(); UpdateAnimation();
-                break;
-
-            case MegamanState.MovementLock:
                 break;
 
             case MegamanState.RoomTransition:
@@ -273,6 +270,14 @@ public class MegamanController : Entity, IBulletEmiter
                 break;
 
             case MegamanState.MovementLock:
+                isJumping = false;
+                rb.velocity = Vector2.zero;
+                break;
+
+            case MegamanState.WaitForRoomTransition:
+                isJumping = false;
+                rb.velocity = Vector2.zero;
+                rb.gravityScale = 0;
                 break;
 
             case MegamanState.RoomTransition:
@@ -511,11 +516,13 @@ public class MegamanController : Entity, IBulletEmiter
             }
             transitionSpeed = Vector2.Distance(transform.position, roomTransitionTarget) / GameData.roomTransitionTime;
 
-            if(transition.IsBossTransition)
-                yield return new WaitForSeconds(GameData.roomTransitionTime + transition.CurrentBossDoor.DoorAnimationLenght);
-            else 
-                yield return new WaitForSeconds(GameData.roomTransitionTime);
+            yield return new WaitForSeconds(GameData.roomTransitionTime);
 
+            if (transition.IsBossTransition)
+            {
+                yield return new WaitForSeconds(transition.CurrentBossDoor.DoorAnimationLenght);
+            }
+            
             ChangeState(MegamanState.CanMove);
         }
     }

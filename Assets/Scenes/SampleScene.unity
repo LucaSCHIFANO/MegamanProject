@@ -559,7 +559,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: transitions.Array.size
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: worldBottomLeftLimit.x
