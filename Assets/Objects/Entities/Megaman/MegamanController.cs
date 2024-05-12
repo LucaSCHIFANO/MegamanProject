@@ -497,19 +497,24 @@ public class MegamanController : Entity, IBulletEmiter
                 animator.Play("Megaman_Climb");
             
             ChangeState(MegamanState.RoomTransition);
+            float roomColliderThickness = transition.IsBossTransition ? 
+                GameData.bossRoomColliderThickness : GameData.roomColliderThickness;
+            float roomTransitionDistance = transition.IsBossTransition ? 
+                GameData.bossRoomTransitionDistance : GameData.roomTransitionDistance;
+
             switch (transition.TransitionSide)
             {
                 case Room.TransitionSide.Left:
-                    roomTransitionTarget = transform.position + new Vector3(-GameData.roomColliderThickness * GameData.roomTransitionDistance, 0, 0);
+                    roomTransitionTarget = transform.position + new Vector3(-roomColliderThickness * roomTransitionDistance, 0, 0);
                     break;
                 case Room.TransitionSide.Right:
-                    roomTransitionTarget = transform.position + new Vector3(GameData.roomColliderThickness * GameData.roomTransitionDistance, 0, 0);
+                    roomTransitionTarget = transform.position + new Vector3(roomColliderThickness * roomTransitionDistance, 0, 0);
                     break;
                 case Room.TransitionSide.Bottom:
-                    roomTransitionTarget = transform.position + new Vector3(0, -GameData.roomColliderThickness * GameData.roomTransitionDistance, 0);
+                    roomTransitionTarget = transform.position + new Vector3(0, -roomColliderThickness * roomTransitionDistance, 0);
                     break;
                 case Room.TransitionSide.Top:
-                    roomTransitionTarget = transform.position + new Vector3(0, GameData.roomColliderThickness * GameData.roomTransitionDistance, 0);
+                    roomTransitionTarget = transform.position + new Vector3(0, roomColliderThickness * roomTransitionDistance, 0);
                     break;
                 default:
                     break;
