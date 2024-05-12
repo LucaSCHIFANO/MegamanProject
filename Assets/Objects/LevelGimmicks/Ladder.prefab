@@ -177,6 +177,7 @@ MonoBehaviour:
   topHandler: {fileID: 3179437800990442213}
   botHandler: {fileID: 8549165524394107812}
   ladderTile: {fileID: 1560883865808261134}
+  boxColliderMultiplicator: {x: 0.3, y: 1}
 --- !u!1 &4516371885812129935
 GameObject:
   m_ObjectHideFlags: 0
@@ -323,8 +324,8 @@ EdgeCollider2D:
   m_Offset: {x: 0, y: 0}
   m_EdgeRadius: 0
   m_Points:
-  - {x: -0.5, y: 0}
-  - {x: 0.5, y: 0}
+  - {x: -0.1, y: 0}
+  - {x: 0.1, y: 0}
   m_AdjacentStartPoint: {x: 0, y: 0}
   m_AdjacentEndPoint: {x: 0, y: 0}
   m_UseAdjacentStartPoint: 0
