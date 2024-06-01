@@ -44,6 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aec2e06d9c33fc04fae86a8afc466a32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  roomType: 0
   position: {x: 0, y: 0}
   bottomLeftLimit: {x: -1, y: 0}
   topRightLimit: {x: 1, y: 0}
@@ -53,9 +54,10 @@ MonoBehaviour:
   transitions: []
   roomCheckPointPrefab: {fileID: 5459170903088802338, guid: f872f0a26925968469c10b443310ca69, type: 3}
   checkPoint: []
-  drawDebug: 0
+  bossPrefab: {fileID: 0}
+  drawDebug: 1
   handlesColor: {r: 1, g: 0, b: 0, a: 1}
   handlesColliderColor: {r: 0, g: 1, b: 0, a: 1}
   handlesCheckPointColor: {r: 0, g: 0, b: 1, a: 1}
   lineThickness: 3
-  checkPointlineThickness: 1.5
+  checkPointlineThickness: 2

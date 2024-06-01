@@ -10,13 +10,21 @@ using UnityEngine;
 [CustomEditor(typeof(Room))]
 public class RoomEditor : Editor
 {
+    SerializedProperty m_RoomType;
+
     SerializedProperty m_Position;
 
     SerializedProperty m_RoomBottomLeftLimit;
     SerializedProperty m_RoomTopRightLimit;
 
+    SerializedProperty m_RoomTransitionPrefab;
+    SerializedProperty m_Transitions;
+
     SerializedProperty m_LocalBottomLeftLimit;
     SerializedProperty m_LocalTopRightLimit;
+
+    SerializedProperty m_CheckPointPrefab;
+    SerializedProperty m_CheckPoints;
 
     SerializedProperty m_HandlesColor;
     SerializedProperty m_HandlesColliderColor;
@@ -25,16 +33,29 @@ public class RoomEditor : Editor
     SerializedProperty m_CheckPointLineThickness;
     SerializedProperty m_DrawDebug;
 
+
+    SerializedProperty m_Boss;
+
     private void OnEnable()
     {
+        m_RoomType = serializedObject.FindProperty("roomType");
+
         m_Position = serializedObject.FindProperty("position");
 
         m_RoomBottomLeftLimit = serializedObject.FindProperty("bottomLeftLimit");
         m_RoomTopRightLimit = serializedObject.FindProperty("topRightLimit");
+        
+        m_RoomTransitionPrefab = serializedObject.FindProperty("roomTransitionPrefab");
+        m_Transitions = serializedObject.FindProperty("transitions");
 
         m_LocalBottomLeftLimit = serializedObject.FindProperty("worldBottomLeftLimit");
         m_LocalTopRightLimit = serializedObject.FindProperty("worldTopRightLimit");
-        
+
+        m_CheckPointPrefab = serializedObject.FindProperty("roomCheckPointPrefab");
+        m_CheckPoints = serializedObject.FindProperty("checkPoint");
+
+        m_Boss = serializedObject.FindProperty("bossPrefab");
+
         m_HandlesColor = serializedObject.FindProperty("handlesColor");
         m_HandlesColliderColor = serializedObject.FindProperty("handlesColliderColor");
         m_HandlesCheckPointColor = serializedObject.FindProperty("handlesCheckPointColor");
@@ -61,8 +82,6 @@ public class RoomEditor : Editor
         var bottomRightLimit = new Vector3(topRightLimit.x, bottomLeftLimit.y, 0);
         var topLeftLimit = new Vector3(bottomLeftLimit.x, topRightLimit.y, 0);
         #endregion
-
-
 
         if (m_DrawDebug.boolValue)
         {
@@ -101,7 +120,7 @@ public class RoomEditor : Editor
             #endregion
 
             #region CheckPoints
-            if (room.CheckPointRoom.Count > 0)
+            if (m_RoomType.intValue == 1 && room.CheckPointRoom.Count > 0)
             {
                 Handles.color = m_HandlesCheckPointColor.colorValue;
 
@@ -183,9 +202,108 @@ public class RoomEditor : Editor
         Vector2 top = m_RoomTopRightLimit.vector2IntValue;
         Vector2 bottom = m_RoomBottomLeftLimit.vector2IntValue;
 
-        DrawPropertiesExcluding(serializedObject, "handlesColor", "handlesColliderColor", "lineThickness", "handlesCheckPointColor", "checkPointlineThickness");
+        EditorGUILayout.PropertyField(m_RoomType, new GUIContent("Room Type"), GUILayout.Height(20));
 
-        #region ClampRoomBounds
+
+        switch (m_RoomType.intValue)
+        {
+            case 0:
+                DrawGUINormal();
+                break;
+            case 1:
+                DrawGUICheckPoints();
+                break;
+            case 2:
+                DrawGUIBoss();
+                break;
+        }
+
+        ClampRoom(top, bottom);
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Debug", EditorStyles.boldLabel, GUILayout.Height(20));
+        EditorGUILayout.PropertyField(m_DrawDebug, new GUIContent("Draw Debug"), GUILayout.Height(20));
+
+        if (m_DrawDebug.boolValue) 
+        {
+            EditorGUILayout.PropertyField(m_HandlesColor, new GUIContent("Handles Color"), GUILayout.Height(20));
+            EditorGUILayout.PropertyField(m_HandlesColliderColor, new GUIContent("Handles Collider Color"), GUILayout.Height(20));
+            EditorGUILayout.PropertyField(m_HandlesCheckPointColor, new GUIContent("Handles Checkpoint Color"), GUILayout.Height(20));
+            EditorGUILayout.PropertyField(m_LineThickness, new GUIContent("Line Thickness"), GUILayout.Height(20));
+            EditorGUILayout.PropertyField(m_CheckPointLineThickness, new GUIContent("Checkpoint Line Thickness"), GUILayout.Height(20));
+        }
+
+        EditorGUILayout.Space(12f);
+        if(GUILayout.Button("Add the Room to the RoomManager"))
+        {
+            (target as Room).AddRoomToRoomManager();
+        }
+
+        serializedObject.ApplyModifiedProperties();
+    }
+
+    private void DrawGUINormal()
+    {
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Room Postition", EditorStyles.boldLabel, GUILayout.Height(15));
+        EditorGUILayout.PropertyField(m_Position, new GUIContent("Position"), GUILayout.Height(20));
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Room Limits", EditorStyles.boldLabel, GUILayout.Height(15));
+        EditorGUILayout.PropertyField(m_RoomBottomLeftLimit, new GUIContent("Bottom Left limit"), GUILayout.Height(20));
+        EditorGUILayout.PropertyField(m_RoomTopRightLimit, new GUIContent("Top Right limit"), GUILayout.Height(20));
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Transitions", EditorStyles.boldLabel, GUILayout.Height(15));
+        EditorGUILayout.PropertyField(m_RoomTransitionPrefab, new GUIContent("Room Transition Prefab"), GUILayout.Height(20));
+        EditorGUILayout.PropertyField(m_Transitions, new GUIContent("Transition"));
+    }
+
+    private void DrawGUICheckPoints()
+    {
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Room Postition", EditorStyles.boldLabel, GUILayout.Height(15));
+        EditorGUILayout.PropertyField(m_Position, new GUIContent("Position"), GUILayout.Height(20));
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Room Limits", EditorStyles.boldLabel, GUILayout.Height(15));
+        EditorGUILayout.PropertyField(m_RoomBottomLeftLimit, new GUIContent("Bottom Left limit"), GUILayout.Height(20));
+        EditorGUILayout.PropertyField(m_RoomTopRightLimit, new GUIContent("Top Right limit"), GUILayout.Height(20));
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Transitions", EditorStyles.boldLabel, GUILayout.Height(15));
+        EditorGUILayout.PropertyField(m_RoomTransitionPrefab, new GUIContent("Room Transition Prefab"), GUILayout.Height(20));
+        EditorGUILayout.PropertyField(m_Transitions, new GUIContent("Transitions"));
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Check Points", EditorStyles.boldLabel, GUILayout.Height(15));
+        EditorGUILayout.PropertyField(m_CheckPointPrefab, new GUIContent("Check Point Prefab"), GUILayout.Height(20));
+        EditorGUILayout.PropertyField(m_CheckPoints, new GUIContent("Check Points"));
+    }
+
+    private void DrawGUIBoss()
+    {
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Room Postition", EditorStyles.boldLabel, GUILayout.Height(15));
+        EditorGUILayout.PropertyField(m_Position, new GUIContent("Position"), GUILayout.Height(20));
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Room Limits", EditorStyles.boldLabel, GUILayout.Height(15));
+        EditorGUILayout.PropertyField(m_RoomBottomLeftLimit, new GUIContent("Bottom Left limit"), GUILayout.Height(20));
+        EditorGUILayout.PropertyField(m_RoomTopRightLimit, new GUIContent("Top Right limit"), GUILayout.Height(20));
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Transitions", EditorStyles.boldLabel, GUILayout.Height(15));
+        EditorGUILayout.PropertyField(m_RoomTransitionPrefab, new GUIContent("Room Transition Prefab"), GUILayout.Height(20));
+        EditorGUILayout.PropertyField(m_Transitions, new GUIContent("Transitions"));
+
+        EditorGUILayout.Space(5);
+        EditorGUILayout.LabelField("Boss", EditorStyles.boldLabel, GUILayout.Height(20));
+        EditorGUILayout.PropertyField(m_Boss, new GUIContent("Boss Prefab"), GUILayout.Height(20));
+    }
+
+    private void ClampRoom(Vector2 top, Vector2 bottom)
+    {
         if (top != m_RoomTopRightLimit.vector2IntValue)
         {
             var TopX = Mathf.Clamp(
@@ -201,8 +319,8 @@ public class RoomEditor : Editor
             m_RoomTopRightLimit.vector2IntValue = new Vector2Int(TopX, TopY);
             OnSceneGUI();
         }
-        else if (bottom != m_RoomBottomLeftLimit.vector2IntValue) 
-        { 
+        else if (bottom != m_RoomBottomLeftLimit.vector2IntValue)
+        {
             var BotX = Mathf.Clamp(
                 m_RoomBottomLeftLimit.vector2IntValue.x,
                 int.MinValue,
@@ -216,18 +334,6 @@ public class RoomEditor : Editor
             m_RoomBottomLeftLimit.vector2IntValue = new Vector2Int(BotX, BotY);
             OnSceneGUI();
         }
-        #endregion
-
-        if (m_DrawDebug.boolValue) 
-        {
-            EditorGUILayout.PropertyField(m_HandlesColor, new GUIContent("Handles Color"), GUILayout.Height(20));
-            EditorGUILayout.PropertyField(m_HandlesColliderColor, new GUIContent("Handles Collider Color"), GUILayout.Height(20));
-            EditorGUILayout.PropertyField(m_HandlesCheckPointColor, new GUIContent("Handles Checkpoint Color"), GUILayout.Height(20));
-            EditorGUILayout.PropertyField(m_LineThickness, new GUIContent("Line Thickness"), GUILayout.Height(20));
-            EditorGUILayout.PropertyField(m_CheckPointLineThickness, new GUIContent("Checkpoint Line Thickness"), GUILayout.Height(20));
-        }
-
-            serializedObject.ApplyModifiedProperties();
     }
 }
 
