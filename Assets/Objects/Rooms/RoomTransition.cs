@@ -3,7 +3,7 @@ using System.Diagnostics.SymbolStore;
 using UnityEngine;
 using static Room;
 
-public class RoomTransition : MonoBehaviour
+public class RoomTransition : MonoBehaviour, ILinkedToRoom
 {
     [Header("Transition Data")]
     [SerializeField] TransitionSide transitionSide;
@@ -40,9 +40,14 @@ public class RoomTransition : MonoBehaviour
             currentBossDoor = Instantiate(bossDoorPrefab, transform);
     }
 
-    public void SetRoomActive(bool active)
+    public void Enable()
     {
-        bc.enabled = active;
+        bc.enabled = true;
+    }
+
+    public void Disable()
+    {
+        bc.enabled = false;
     }
 
     private void Update()
@@ -68,6 +73,8 @@ public class RoomTransition : MonoBehaviour
 
     private void TransitionNewRoom()
     {
+        if (newRoomID == -1) return;
+
         if (isBossTransition)
             StartCoroutine(BossTransition());
         else RoomManager.Instance.SetNewRoom(newRoomID, this);

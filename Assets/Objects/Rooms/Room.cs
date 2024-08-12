@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
-using UnityEngine.UIElements;
 
 
 public class Room : MonoBehaviour
@@ -39,10 +37,12 @@ public class Room : MonoBehaviour
     //[Space]
     //[Header("Check Points")]
     [SerializeField] private Checkpoint roomCheckPointPrefab;
-    [SerializeField] private List<CheckPointRoom> checkPoint = new List<CheckPointRoom>();
+    [SerializeField] private List<PointRoom> checkPoint = new List<PointRoom>();
 
     //Boss
     [SerializeField] private Boss bossPrefab;
+    [SerializeField] private PointRoom bossPoint;
+    private Boss currentBoss;
 
     public enum TransitionSide
     {
@@ -79,7 +79,8 @@ public class Room : MonoBehaviour
 
     //Lists
     [SerializeField, HideInInspector] public List<Transition> Transitions { get => transitions;}
-    public List<CheckPointRoom> CheckPointRoom { get => checkPoint; set => checkPoint = value; }
+    public List<PointRoom> CheckPointRoom { get => checkPoint; set => checkPoint = value; }
+    public PointRoom BossPoint { get => bossPoint; }
     #endregion
 
 
@@ -132,6 +133,9 @@ public class Room : MonoBehaviour
                 cpCollider.isTrigger = true;
                 cpCollider.size = new Vector2(gridX, gridY);
             }
+        }else if(roomType == RoomType.Boss)
+        {
+            
         }
     }
 
@@ -168,7 +172,10 @@ public class Room : MonoBehaviour
         }
         else
         {
-
+            if (active) {
+                currentBoss = Instantiate(bossPrefab, BossPoint.spawnPointPosition, Quaternion.identity);
+                currentBoss.Init(LevelManager.Instance.Megaman);
+            }
         }
 
         
@@ -338,7 +345,7 @@ public class Transition
 }
 
 [Serializable]
-public class CheckPointRoom
+public class PointRoom
 {
     public Vector2Int checkPointPosition;
     [Range(0f, 1f)] public float offset = 0.5f;

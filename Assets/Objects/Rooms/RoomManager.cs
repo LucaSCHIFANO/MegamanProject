@@ -48,8 +48,7 @@ public class RoomManager : MonoBehaviour
         if (currentCamera != null)
         {
             int roomId = GetAdjacentId(worldPositionToRoomPosition(LevelManager.Instance.Megaman.transform.position), TransitionSide.None);
-            if (roomId >= 0 && roomId < rooms.Count) SetNewRoom(roomId);
-            else SetNewRoom(0);
+            SetNewRoom(roomId);
 
             StartCoroutine(currentCamera.WaitToActivateRoom(LevelManager.Instance.Megaman.DefaultAnimationClip.length));
         }
@@ -66,7 +65,11 @@ public class RoomManager : MonoBehaviour
 
     public void SetNewRoom(int id,RoomTransition transition = null)
     {
-        if (id == -1) return;
+        if (id < 0)
+        {
+            Debug.LogError("Id is not valide !! Id < 0");
+            return;
+        }
         StartCoroutine(LevelManager.Instance.Megaman.RoomTransition(transition));
         currentCamera.ChangeRoom(rooms[id], transition);
     }
@@ -104,5 +107,12 @@ public class RoomManager : MonoBehaviour
             }
         }
         return -1;
+    }
+
+    public bool AddRoom(Room room)
+    {
+        if (room == null || rooms.Contains(room)) return false;
+        rooms.Add(room);
+        return true;
     }
 }

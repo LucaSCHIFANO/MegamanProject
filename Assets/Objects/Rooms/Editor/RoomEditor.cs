@@ -26,6 +26,9 @@ public class RoomEditor : Editor
     SerializedProperty m_CheckPointPrefab;
     SerializedProperty m_CheckPoints;
 
+    SerializedProperty m_Boss;
+    SerializedProperty m_BossPoint;
+
     SerializedProperty m_HandlesColor;
     SerializedProperty m_HandlesColliderColor;
     SerializedProperty m_HandlesCheckPointColor;
@@ -34,7 +37,6 @@ public class RoomEditor : Editor
     SerializedProperty m_DrawDebug;
 
 
-    SerializedProperty m_Boss;
 
     private void OnEnable()
     {
@@ -55,6 +57,7 @@ public class RoomEditor : Editor
         m_CheckPoints = serializedObject.FindProperty("checkPoint");
 
         m_Boss = serializedObject.FindProperty("bossPrefab");
+        m_BossPoint = serializedObject.FindProperty("bossPoint");
 
         m_HandlesColor = serializedObject.FindProperty("handlesColor");
         m_HandlesColliderColor = serializedObject.FindProperty("handlesColliderColor");
@@ -192,6 +195,77 @@ public class RoomEditor : Editor
 
             }
             #endregion
+
+            #region Boss
+            if (m_RoomType.intValue == 2)
+            {
+                Handles.color = m_HandlesCheckPointColor.colorValue;
+
+                var roomX = Mathf.Clamp(
+                    room.BossPoint.checkPointPosition.x,
+                    m_RoomBottomLeftLimit.vector2IntValue.x + m_Position.vector2IntValue.x,
+                    m_RoomTopRightLimit.vector2IntValue.x + m_Position.vector2IntValue.x);
+
+                var roomY = Mathf.Clamp(
+                    room.BossPoint.checkPointPosition.y,
+                    m_RoomBottomLeftLimit.vector2IntValue.y + m_Position.vector2IntValue.y,
+                    m_RoomTopRightLimit.vector2IntValue.y + m_Position.vector2IntValue.y);
+                room.BossPoint.checkPointPosition = new Vector2Int(roomX, roomY);
+
+
+                var size = new Vector2(GameData.gridX, GameData.gridY) / 2;
+                var centralPosition = room.roomPositionToWorldPosition(room.BossPoint.checkPointPosition);
+
+                var bottomLeftCollider = new Vector2(centralPosition.x - size.x, centralPosition.y - size.y);
+                var topRightCollider = new Vector2(centralPosition.x + size.x, centralPosition.y + size.y);
+
+                var bottomRightCollider = new Vector2(centralPosition.x + size.x, centralPosition.y - size.y);
+                var topLeftCollider = new Vector2(centralPosition.x - size.x, centralPosition.y + size.y);
+
+                var minimumHeight = new Vector2(0, GameData.gridY * room.BossPoint.minimumHeight);
+
+                Handles.DrawLine(bottomLeftCollider, topLeftCollider, m_CheckPointLineThickness.floatValue);
+                Handles.DrawLine(topLeftCollider, topRightCollider, m_CheckPointLineThickness.floatValue);
+                Handles.DrawLine(topRightCollider, bottomRightCollider, m_CheckPointLineThickness.floatValue);
+                Handles.DrawLine(bottomRightCollider, bottomLeftCollider, m_CheckPointLineThickness.floatValue);
+
+                Handles.DrawLine(bottomRightCollider + minimumHeight, bottomLeftCollider + minimumHeight, m_CheckPointLineThickness.floatValue);
+
+                var centralOffset = new Vector3(-GameData.gridX / 2 + GameData.gridX * room.BossPoint.offset, GameData.gridY / 2, 0);
+                var rayOrigin = centralPosition + centralOffset;
+                LayerMask mask = LayerMask.GetMask("Ground");
+                List<RaycastHit2D> hits = Physics2D.RaycastAll(rayOrigin, Vector2.down, GameData.gridY, mask).ToList();
+                hits.Reverse();
+                Vector2 lastPoint = Vector2.negativeInfinity;
+
+                for (int j = 0; j < hits.Count; j++)
+                {
+
+                    var collider = Physics2D.OverlapBox(hits[j].point + new Vector2(0, GameData.megamanSizeY / 2f + 0.05f),
+                        new Vector2(GameData.megamanSizeX, GameData.megamanSizeY), 0, mask);
+                    if (collider == null)
+                    {
+                        lastPoint = hits[j].point;
+                        if (lastPoint.y >= bottomLeftCollider.y + minimumHeight.y)
+                        {
+                            Handles.DrawWireCube(lastPoint + new Vector2(0, GameData.megamanSizeY / 2),
+                                new Vector3(GameData.megamanSizeX, GameData.megamanSizeY, 0));
+                            room.BossPoint.spawnPointPosition = lastPoint + new Vector2(0, GameData.megamanSizeY / 2);
+                            return;
+                        }
+                    }
+
+                }
+
+                if (lastPoint == Vector2.negativeInfinity)
+                    return;
+
+                Handles.DrawWireCube(lastPoint + new Vector2(0, GameData.megamanSizeY / 2),
+                                new Vector3(GameData.megamanSizeX, GameData.megamanSizeY, 0));
+
+
+            }
+            #endregion
         }
 
         PrefabUtility.RecordPrefabInstancePropertyModifications(room);
@@ -300,6 +374,10 @@ public class RoomEditor : Editor
         EditorGUILayout.Space(5);
         EditorGUILayout.LabelField("Boss", EditorStyles.boldLabel, GUILayout.Height(20));
         EditorGUILayout.PropertyField(m_Boss, new GUIContent("Boss Prefab"), GUILayout.Height(20));
+        EditorGUILayout.Space(1);
+        EditorGUILayout.PropertyField(m_BossPoint, new GUIContent("Boss Position"), GUILayout.Height(20));
+
+        EditorGUILayout.Space(35);
     }
 
     private void ClampRoom(Vector2 top, Vector2 bottom)
@@ -402,7 +480,7 @@ public class TransitionEditor : PropertyDrawer
     }
 }
 
-[CustomPropertyDrawer(typeof(CheckPointRoom)), CanEditMultipleObjects]
+[CustomPropertyDrawer(typeof(PointRoom)), CanEditMultipleObjects]
 public class CheckPointRoomEditor : PropertyDrawer
 {
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)

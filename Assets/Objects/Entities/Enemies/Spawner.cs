@@ -5,8 +5,8 @@ public class Spawner : MonoBehaviour, ILinkedToRoom
     [SerializeField] private SpriteRenderer sr;
 
     [Header("Enemy")]
-    [SerializeField] private Enemy enemy;
-    private Enemy spawnedEnemy = null;
+    [SerializeField] private BasicEnemy enemy;
+    private BasicEnemy spawnedEnemy = null;
     private bool canSpawn;
     private bool waitingToSpawn;
     private bool isDisable;

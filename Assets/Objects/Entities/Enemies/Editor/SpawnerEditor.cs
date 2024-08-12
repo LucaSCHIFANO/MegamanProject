@@ -14,13 +14,16 @@ public class SpawnerEditor : Editor
         {
             spawner.transform.localScale = spawner.Enemy.transform.localScale;
             spawner.GetComponent<SpriteRenderer>().sprite = spawner.Enemy.GetComponent<SpriteRenderer>().sprite;
+            spawner.GetComponent<SpriteRenderer>().color = spawner.Enemy.GetComponent<SpriteRenderer>().color;
             spawner.GetComponent<BoxCollider2D>().offset = spawner.Enemy.GetComponent<BoxCollider2D>().offset;
             spawner.GetComponent<BoxCollider2D>().size = spawner.Enemy.GetComponent<BoxCollider2D>().size;
 
         }else
         {
             spawner.GetComponent<SpriteRenderer>().sprite = null;
-            spawner.GetComponent<BoxCollider2D>().size =Vector2.zero;
+            spawner.GetComponent<SpriteRenderer>().color = Color.white;
+            spawner.GetComponent<BoxCollider2D>().size = Vector2.zero;
+            spawner.GetComponent<BoxCollider2D>().offset = Vector2.zero;
         }
 
     }
