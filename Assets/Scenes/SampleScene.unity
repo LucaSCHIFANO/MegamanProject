@@ -598,6 +598,10 @@ PrefabInstance:
       value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
+      propertyPath: bossPoint.checkPointPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: bossPoint.spawnPointPosition.x
       value: -3.0360003
       objectReference: {fileID: 0}
@@ -1664,7 +1668,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rooms:
   - {fileID: 1829821481}
-  - {fileID: 2117974460}
 --- !u!1 &458243067
 GameObject:
   m_ObjectHideFlags: 0
@@ -6512,17 +6515,21 @@ MonoBehaviour:
   topRightLimit: {x: 0, y: 0}
   worldBottomLeftLimit: {x: 0, y: 0, z: 0}
   worldTopRightLimit: {x: 0, y: 0, z: 0}
-  roomTransitionPrefab: {fileID: 0}
+  roomTransitionPrefab: {fileID: 8291192240538636720, guid: c8860670251770945b747fd88814afe4, type: 3}
   transitions: []
-  roomCheckPointPrefab: {fileID: 0}
-  checkPoint: []
+  roomCheckPointPrefab: {fileID: 5459170903088802338, guid: f872f0a26925968469c10b443310ca69, type: 3}
+  checkPoint:
+  - checkPointPosition: {x: 0, y: 0}
+    offset: 0
+    minimumHeight: 0
+    spawnPointPosition: {x: 0, y: 0}
   bossPrefab: {fileID: 0}
   bossPoint:
     checkPointPosition: {x: 0, y: 0}
     offset: 0.5
     minimumHeight: 0
     spawnPointPosition: {x: 0, y: 0}
-  drawDebug: 0
+  drawDebug: 1
   handlesColor: {r: 1, g: 0, b: 0, a: 1}
   handlesColliderColor: {r: 0, g: 1, b: 0, a: 1}
   handlesCheckPointColor: {r: 0, g: 1, b: 0, a: 1}
@@ -7726,7 +7733,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: checkPoint.Array.data[0].offset
-      value: 0.87
+      value: 0.851
       objectReference: {fileID: 0}
     - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: transitions.Array.data[0].offset
@@ -7793,8 +7800,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
+      propertyPath: checkPoint.Array.data[0].checkPointPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: checkPoint.Array.data[0].spawnPointPosition.x
-      value: 0.8880001
+      value: 0.8424001
       objectReference: {fileID: 0}
     - target: {fileID: 1955813962790391267, guid: cff12867b755a184198af3f476e5003e, type: 3}
       propertyPath: checkPoint.Array.data[0].spawnPointPosition.y
